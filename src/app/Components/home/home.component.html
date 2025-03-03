@@ -1,0 +1,183 @@
+<app-navbar></app-navbar>
+
+<header>
+
+    <div>
+
+        <h2>Spot Plagiarism, Ensure Originality</h2>
+        <p class="typing-effect">Compare two files with ease, type or upload and let the checker do the rest..</p>
+    
+    </div>
+
+    <div class="tabs py-sm-3 px-sm-5">
+
+        <button class="btn btn-outline-success" (click)="onTab(0)">Text To Text</button>
+        <button class="btn btn-outline-success mx-5" (click)="onTab(1)">Text To File</button>
+        <button class="btn btn-outline-success" (click)="onTab(2)">File To File</button>
+
+    </div>
+
+</header>
+
+<main>
+
+    <!-- Text To Text div -->
+    <div *ngIf="tabValue == 0" class="content">
+
+        <h3 class="mb-5">Enter two texts to compare between them</h3>
+
+        <div class="box">
+
+            <div class="row gx-2 p-1">
+
+                <div class="col-md-6">
+
+                    <div>
+                        <textarea rows="20" class="form-control" placeholder="Enter Your First Text"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <div>
+                        <textarea rows="20" class="form-control" placeholder="Enter Your Second Text"></textarea>
+                    </div>
+
+                </div>
+
+            </div>
+            
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+            <button class="btn checkButton">Check For Plagiarism</button>
+        </div>
+
+    </div>
+
+    <!-- Text To File div -->
+    <div *ngIf="tabValue == 1" class="content">
+
+        <h3 class="mb-5">Upload a document to compare with text</h3>
+
+        <div class="box p-2">
+
+            <div class="row gx-2">
+
+                
+                <div class="col-md-6">
+                    
+                    <div>
+                        
+                        <textarea rows="20" class="form-control" placeholder="Enter Your Text"></textarea>
+                        
+                    </div>    
+                    
+                </div>
+                
+                <div class="col-md-6">
+
+                    <div class="input h-100">
+                        
+                        <div class="p-5 mb-1">
+                            
+                            <div *ngIf="!firstFileName">
+                                <input type="file" id="file-input" (change)="onFirstFileSelected($event)">
+                                <span id="fileName" class="d-block"><fa-icon [icon]="uplaodIcon" class="fs-1 text-success"></fa-icon></span>
+                                <label for="file-input" class="btn btn-success">Upload File To Compare</label>
+                            </div>
+
+                            <div *ngIf="firstFileName">
+                                <input type="file" id="file-input" (change)="onFirstFileSelected($event)">
+                                <span class="d-block mb-2">{{firstFileName}}</span>
+                                <label for="file-input" class="btn btn-success">Upload File To Compare</label>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+            <button class="btn checkButton">Check For Plagiarism</button>
+        </div>
+
+    </div>
+
+    <!-- File To File div -->
+    <div *ngIf="tabValue == 2" class="content">
+
+        <h3 class="mb-5">Upload a document to compare with text</h3>
+
+        <div class="box p-2">
+
+            <div class="row gx-2">
+
+                <!-- First File Input -->
+                <div class="col-md-6">
+
+                    <div class="input h-100 p-5">
+
+                        <div>
+
+                            <div *ngIf="!firstFileName">
+                                <input type="file" id="firstFileInput" (change)="onFirstFileSelected($event)">
+                                <span id="fileName" class="d-block"><fa-icon [icon]="uplaodIcon" class="fs-1 text-success"></fa-icon></span>
+                                <span class="d-block my-2 fs-5">Upload First Document</span>
+                                <label for="firstFileInput" class="btn btn-success">Upload File To Compare</label>
+                            </div>
+
+                            <div *ngIf="firstFileName">
+                                <input type="file" id="firstFileInput" (change)="onFirstFileSelected($event)">
+                                <span class="d-block mb-2">{{firstFileName}}</span>
+                                <label for="firstFileInput" class="btn btn-success">Upload File To Compare</label>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Second File Input-->
+                <div class="col-md-6">
+
+                    <div class="input p-5">
+
+                        <div>
+
+                            <div *ngIf="!secondFileName">
+                                <input type="file" id="secondFileInput" (change)="onSecondFileSelected($event)">
+                                <span id="fileName" class="d-block"><fa-icon [icon]="uplaodIcon" class="fs-1 text-success"></fa-icon></span>
+                                <span class="d-block my-2 fs-5">Upload Second Document</span>
+                                <label for="secondFileInput" class="btn btn-success">Upload File To Compare</label>
+                            </div>
+
+                            <div *ngIf="secondFileName">
+                                <input type="file" id="secondFileInput" (change)="onSecondFileSelected($event)">
+                                <span class="d-block mb-2">{{secondFileName}}</span>
+                                <label for="secondFileInput" class="btn btn-success">Upload File To Compare</label>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+            <button class="btn checkButton">Check For Plagiarism</button>
+        </div>
+
+    </div>
+
+</main>

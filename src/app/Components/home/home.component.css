@@ -1,0 +1,95 @@
+header{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+    background: linear-gradient(0deg, #2c3e50, #117C70);
+    color: white;
+    text-align: center;
+}
+
+main{
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.tabs{
+    position: absolute;
+    bottom: -7%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+.tabs button:focus{
+    background-color: #198754;
+    color: white;
+}
+
+.box {
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3), -5px 5px 10px rgba(0, 0, 0, 0.3);
+    background-color: #c4c4c4;
+}
+
+.form-control:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.checkButton{
+    background-color: #117C70;
+    color: white;
+}
+
+.input{
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 5px;
+}
+
+#file-input, #firstFileInput, #secondFileInput{
+    display: none;
+}
+
+.typing-effect {
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 3px solid #117C70;
+    width: 0;
+    animation: typing 3s steps(40, end) forwards, blink 0.8s infinite;
+}
+
+@keyframes typing {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes blink {
+    50% {
+        border-color: transparent;
+    }
+}
+
+@media screen and (min-width: 300px){
+
+    .content{
+        width: 50%;
+    }
+
+}

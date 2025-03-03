@@ -1,0 +1,73 @@
+<main>
+
+    <div class="box" #box>
+
+        <div class="form-box login">
+
+            <form>
+
+                <h1>Login</h1>
+
+                <div class="input-box">
+                    <input type="text" placeholder="Username" required>
+                    <fa-icon [icon]="faUser"></fa-icon>
+                </div>
+
+                <div class="input-box">
+                    <input type="password" placeholder="Password" required>
+                    <fa-icon [icon]="faLock"></fa-icon>
+                </div>
+
+                <div class="forgot-link">
+                    <a href="#">Forgot password?</a>
+                </div>
+                
+                <button class="btn" routerLink="/home">Login</button>
+                
+            </form>
+    
+        </div>
+
+        <div class="form-box register">
+
+            <form>
+
+                <h1>Registration</h1>
+
+                <div class="input-box">
+                    <input type="text" placeholder="Username" required>
+                    <fa-icon [icon]="faUser"></fa-icon>
+                </div>
+
+                <div class="input-box">
+                    <input type="email" placeholder="Email" required>
+                    <fa-icon [icon]="faEnvelope"></fa-icon>
+                </div>
+
+                <div class="input-box">
+                    <input type="password" placeholder="Password" required>
+                    <fa-icon [icon]="faLock"></fa-icon>
+                </div>
+                
+                <button class="btn">Register</button>
+
+            </form>
+    
+        </div>
+
+        <div class="toggle-box">
+            <div class="toggle-panel toggle-left">
+                <h1>Hello, Welcome!</h1>
+                <p>Don't have an account?</p>
+                <button class="btn register-btn" #registerBtn>Register</button>
+            </div>
+            <div class="toggle-panel toggle-right">
+                <h1>Welcome Back!</h1>
+                <p>Already have an account?</p>
+                <button class="btn login-btn" #loginBtn>Login</button>
+            </div>
+        </div>
+
+    </div>
+
+</main>
