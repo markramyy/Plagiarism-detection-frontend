@@ -4,25 +4,43 @@
 
         <div class="form-box login">
 
-            <form>
+            <form [formGroup]="LoginForm" (ngSubmit)="loginSubmit()">
 
                 <h1>Login</h1>
 
                 <div class="input-box">
-                    <input type="text" placeholder="Username" required>
-                    <fa-icon [icon]="faUser"></fa-icon>
-                </div>
+                    
+                    <!-- Username input -->
+                    <div class="input-field">
+                        <input type="text" placeholder="Username" formControlName="username">
+                        <fa-icon [icon]="faUser"></fa-icon>
+                    </div>
 
-                <div class="input-box">
-                    <input type="password" placeholder="Password" required>
-                    <fa-icon [icon]="faLock"></fa-icon>
-                </div>
-
-                <div class="forgot-link">
-                    <a href="#">Forgot password?</a>
+                    <!-- Handling username input -->
+                    <div *ngIf="LoginForm.get('username')?.invalid && LoginForm.get('username')?.touched">
+                        <p class="text-danger text-start" *ngIf="LoginForm.get('username')?.errors?.['required']">Username is required.</p>
+                    </div>
+                    
                 </div>
                 
-                <button class="btn" routerLink="/home">Login</button>
+
+                <div class="input-box">
+
+                    <!-- Password input -->
+                    <div class="input-field">
+                        <input type="password" placeholder="Password" formControlName="password">
+                        <fa-icon [icon]="faLock"></fa-icon>
+                    </div>
+
+                    <!-- Handling password input -->
+                    <div *ngIf="LoginForm.get('password')?.invalid && LoginForm.get('password')?.touched">
+                        <p class="text-danger text-start" *ngIf="LoginForm.get('password')?.errors?.['required']">Password is required.</p>
+                    </div>
+
+                </div>
+
+                
+                <button class="btn" type="submit" [disabled]="LoginForm.invalid">Login</button>
                 
             </form>
     
@@ -30,26 +48,62 @@
 
         <div class="form-box register">
 
-            <form>
+            <form [formGroup]="RegistrationForm" (ngSubmit)="registrationSubmit()">
 
                 <h1>Registration</h1>
 
+                <!-- Username input div -->
                 <div class="input-box">
-                    <input type="text" placeholder="Username" required>
-                    <fa-icon [icon]="faUser"></fa-icon>
+
+                    <div class="input-field">
+                        <input type="text" placeholder="Username" formControlName="username">
+                        <fa-icon [icon]="faUser"></fa-icon>
+                    </div>
+
+                    <!-- Handling username input -->
+                    <div *ngIf="RegistrationForm.get('username')?.invalid && RegistrationForm.get('username')?.touched">
+                        <p class="text-danger text-start" *ngIf="RegistrationForm.get('username')?.errors?.['required']">Username is required.</p>
+                        <p class="text-danger text-start" *ngIf="RegistrationForm.get('username')?.errors?.['minlength']">Username must be at least 3 characters long.</p>
+                    </div>
+                    
                 </div>
 
+
+                <!-- Email input div -->
                 <div class="input-box">
-                    <input type="email" placeholder="Email" required>
-                    <fa-icon [icon]="faEnvelope"></fa-icon>
+                    
+                    <div class="input-field">
+                        <input type="email" placeholder="Email" formControlName="email">
+                        <fa-icon [icon]="faEnvelope"></fa-icon>
+                    </div>
+
+                    <!-- Handling password input -->
+                    <div *ngIf="RegistrationForm.get('email')?.invalid && RegistrationForm.get('email')?.touched">
+                        <p class="text-danger text-start" *ngIf="RegistrationForm.get('email')?.errors?.['required']">Email is required.</p>
+                        <p class="text-danger text-start" *ngIf="RegistrationForm.get('email')?.errors?.['email']">Enter a valid Email</p>
+                    </div>
+
                 </div>
 
+
+                <!-- Password input div -->
                 <div class="input-box">
-                    <input type="password" placeholder="Password" required>
-                    <fa-icon [icon]="faLock"></fa-icon>
+
+                    <div class="input-field">
+                        <input type="password" placeholder="Password" formControlName="password">
+                        <fa-icon [icon]="faLock"></fa-icon>
+                    </div>
+
+                    <!-- Handling password input -->
+                    <div *ngIf="RegistrationForm.get('email')?.invalid && RegistrationForm.get('password')?.touched">
+                        <p class="text-danger text-start" *ngIf="RegistrationForm.get('password')?.errors?.['required']">Password is required.</p>
+                        <p class="text-danger text-start" *ngIf="RegistrationForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters long.</p>
+                        <p class="text-danger text-start" *ngIf="RegistrationForm.get('password')?.errors?.['pattern']">Password must contain at least one uppercase letter, one number, and one symbol (e.g., !, $).</p>
+                    </div>
+
                 </div>
-                
-                <button class="btn">Register</button>
+
+                <button class="btn" type="submit" [disabled]="RegistrationForm.invalid">Register</button>
 
             </form>
     

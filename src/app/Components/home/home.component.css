@@ -33,6 +33,10 @@ main{
     color: white;
 }
 
+.content{
+    width: 75%;
+}
+
 .box {
     border-radius: 10px;
     box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3), -5px 5px 10px rgba(0, 0, 0, 0.3);
@@ -84,12 +88,4 @@ main{
     50% {
         border-color: transparent;
     }
-}
-
-@media screen and (min-width: 300px){
-
-    .content{
-        width: 50%;
-    }
-
 }
