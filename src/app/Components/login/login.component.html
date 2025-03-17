@@ -18,7 +18,7 @@
 
                     <!-- Handling username input -->
                     <div *ngIf="LoginForm.get('username')?.invalid && LoginForm.get('username')?.touched">
-                        <p class="text-danger text-start" *ngIf="LoginForm.get('username')?.errors?.['required']">Username is required.</p>
+                        <p class="error-message" *ngIf="LoginForm.get('username')?.errors?.['required']">Username is required.</p>
                     </div>
                     
                 </div>
@@ -34,7 +34,7 @@
 
                     <!-- Handling password input -->
                     <div *ngIf="LoginForm.get('password')?.invalid && LoginForm.get('password')?.touched">
-                        <p class="text-danger text-start" *ngIf="LoginForm.get('password')?.errors?.['required']">Password is required.</p>
+                        <p class="error-message" *ngIf="LoginForm.get('password')?.errors?.['required']">Password is required.</p>
                     </div>
 
                 </div>
@@ -62,8 +62,8 @@
 
                     <!-- Handling username input -->
                     <div *ngIf="RegistrationForm.get('username')?.invalid && RegistrationForm.get('username')?.touched">
-                        <p class="text-danger text-start" *ngIf="RegistrationForm.get('username')?.errors?.['required']">Username is required.</p>
-                        <p class="text-danger text-start" *ngIf="RegistrationForm.get('username')?.errors?.['minlength']">Username must be at least 3 characters long.</p>
+                        <p class="error-message" *ngIf="RegistrationForm.get('username')?.errors?.['required']">Username is required.</p>
+                        <p class="error-message" *ngIf="RegistrationForm.get('username')?.errors?.['minlength']">Username must be at least 3 characters long.</p>
                     </div>
                     
                 </div>
@@ -79,8 +79,8 @@
 
                     <!-- Handling password input -->
                     <div *ngIf="RegistrationForm.get('email')?.invalid && RegistrationForm.get('email')?.touched">
-                        <p class="text-danger text-start" *ngIf="RegistrationForm.get('email')?.errors?.['required']">Email is required.</p>
-                        <p class="text-danger text-start" *ngIf="RegistrationForm.get('email')?.errors?.['email']">Enter a valid Email</p>
+                        <p class="error-message" *ngIf="RegistrationForm.get('email')?.errors?.['required']">Email is required.</p>
+                        <p class="error-message" *ngIf="RegistrationForm.get('email')?.errors?.['email']">Enter a valid Email</p>
                     </div>
 
                 </div>
@@ -95,10 +95,10 @@
                     </div>
 
                     <!-- Handling password input -->
-                    <div *ngIf="RegistrationForm.get('email')?.invalid && RegistrationForm.get('password')?.touched">
-                        <p class="text-danger text-start" *ngIf="RegistrationForm.get('password')?.errors?.['required']">Password is required.</p>
-                        <p class="text-danger text-start" *ngIf="RegistrationForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters long.</p>
-                        <p class="text-danger text-start" *ngIf="RegistrationForm.get('password')?.errors?.['pattern']">Password must contain at least one uppercase letter, one number, and one symbol (e.g., !, $).</p>
+                    <div *ngIf="RegistrationForm.get('password')?.invalid && RegistrationForm.get('password')?.touched">
+                        <p class="error-message" *ngIf="RegistrationForm.get('password')?.errors?.['required']">Password is required.</p>
+                        <p class="error-message" *ngIf="RegistrationForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters long.</p>
+                        <p class="error-message" *ngIf="RegistrationForm.get('password')?.errors?.['pattern']">Password must contain at least one uppercase letter, one number, and one symbol (e.g., !, $).</p>
                     </div>
 
                 </div>
