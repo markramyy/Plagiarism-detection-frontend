@@ -11,3 +11,7 @@ img {
     display: flex;
     align-items: center;
 }
+
+.dropdown-item:hover{
+    cursor: pointer;
+}
