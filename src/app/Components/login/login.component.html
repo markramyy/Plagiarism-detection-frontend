@@ -38,18 +38,14 @@
 
                 </div>
 
-                <div *ngIf="loginError" class="alert alert-danger"> {{ loginError }}
-
-                    <!-- Handling password input -->
-                    <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-                        <p class="error-message" *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.</p>
-                    </div>
-
+                <div *ngIf="loginError">
+                    <p class="error-message">{{ loginError }}</p>
                 </div>
 
                 <button type="submit" class="btn" [disabled]="loginForm.invalid">Login</button>
 
             </form>
+
         </div>
 
         <div class="form-box register">
@@ -172,5 +168,5 @@
         </div>
 
     </div>
-    
+
 </main>

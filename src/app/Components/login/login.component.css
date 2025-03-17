@@ -78,7 +78,7 @@ form {
     color: #888;
 }
 
-.input-field{
+.input-field {
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -86,9 +86,9 @@ form {
     border-radius: 8px;
 }
 
-.error-message{
-    color: red;
-    text-align: center;
+.error-message {
+    color: #dc3545;
+    text-align: left;
     font-size: 15px;
 }
 
@@ -171,6 +171,33 @@ form {
     box-shadow: none;
 }
 
+.form-box.register {
+    overflow-y: auto;
+    padding: 20px 40px;
+}
+
+.form-box.register form {
+    padding: 20px 0;
+}
+
+.form-box.register::-webkit-scrollbar {
+    width: 6px;
+}
+
+.form-box.register::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.form-box.register::-webkit-scrollbar-thumb {
+    background: #117C70;
+    border-radius: 10px;
+}
+
+.form-box.register::-webkit-scrollbar-thumb:hover {
+    background: #0e6359;
+}
+
 @media screen and (max-width: 650px) {
     .box {
         height: calc(100vh - 40px);
@@ -226,57 +253,11 @@ form {
 }
 
 @media screen and (max-width: 400px) {
-    .form-box{
+    .form-box {
         padding: 20px;
     }
 
-    .toggle-panel h1{
+    .toggle-panel h1 {
         font-size: 30px;
     }
-}
-
-.error-message {
-    color: #dc3545;
-    font-size: 12px;
-    margin-top: 5px;
-    text-align: left;
-}
-
-.alert-danger {
-    color: #721c24;
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-    padding: 0.75rem 1.25rem;
-    margin-bottom: 1rem;
-    border-radius: 0.25rem;
-    text-align: center;
-    font-size: 0.9rem;
-}
-
-.form-box.register {
-    overflow-y: auto;
-    padding: 20px 40px;
-}
-
-.form-box.register form {
-    padding: 20px 0;
-}
-
-/* Add scrollbar styling for the registration form */
-.form-box.register::-webkit-scrollbar {
-    width: 6px;
-}
-
-.form-box.register::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-
-.form-box.register::-webkit-scrollbar-thumb {
-    background: #117C70;
-    border-radius: 10px;
-}
-
-.form-box.register::-webkit-scrollbar-thumb:hover {
-    background: #0e6359;
 }
