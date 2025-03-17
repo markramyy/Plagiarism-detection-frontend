@@ -7,7 +7,7 @@ import {
   HttpErrorResponse
 } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
-import { catchError, switchMap, filter, take } from 'rxjs/operators';
+import { catchError, switchMap, filter, take, tap } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 import { environment } from '../../environment';
 
@@ -20,12 +20,22 @@ export class AuthInterceptor implements HttpInterceptor {
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const token = this.authService.getToken();
+    const apiUrl = environment.apiBaseUrl;
 
-    if (token) {
+    // Log the request details
+    console.log(`Intercepting request to: ${request.url}`);
+    console.log(`Auth token available: ${!!token}`);
+
+    // Only add auth token if the request is going to our API
+    if (token && request.url.includes(apiUrl.replace(/https?:\/\//, ''))) {
+      console.log('Adding token to request');
       request = this.addToken(request, token);
     }
 
     return next.handle(request).pipe(
+      tap(event => {
+        // Log successful responses if needed
+      }),
       catchError(error => {
         if (
           error instanceof HttpErrorResponse &&
@@ -35,6 +45,7 @@ export class AuthInterceptor implements HttpInterceptor {
           return this.handle401Error(request, next);
         }
 
+        console.error('Request error:', error);
         return throwError(() => error);
       })
     );

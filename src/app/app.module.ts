@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
 
@@ -12,6 +12,7 @@ import { NavbarComponent } from './Components/navbar/navbar.component';
 import { LoginComponent } from './Components/login/login.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { SessionExpiredComponent } from './Components/session-expired/session-expired.component';
+import { ResultDialogComponent } from './Components/result-dialog/result-dialog.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { SessionExpiredComponent } from './Components/session-expired/session-ex
     HomeComponent,
     NavbarComponent,
     LoginComponent,
-    SessionExpiredComponent
+    SessionExpiredComponent,
+    ResultDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -27,10 +29,15 @@ import { SessionExpiredComponent } from './Components/session-expired/session-ex
     FontAwesomeModule,
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     HttpClientModule
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })
