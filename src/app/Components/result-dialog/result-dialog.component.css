@@ -1,0 +1,78 @@
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.dialog-content {
+    background-color: #fff;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.dialog-header h3 {
+    margin: 0;
+    color: #212529;
+    font-size: 20px;
+}
+
+.close-button {
+    border: none;
+    background: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6c757d;
+}
+
+.dialog-body {
+    padding: 20px;
+}
+
+.result-verdict {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.result-verdict.plagiarized {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.result-details {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+
+.future-details {
+    min-height: 50px;
+    padding: 10px;
+    border: 1px dashed #dee2e6;
+    border-radius: 4px;
+    margin-top: 20px;
+}

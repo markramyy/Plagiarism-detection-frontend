@@ -1,15 +1,18 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
-import { AppRoutingModule } from './app-routing.module';
-import { ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
+
+import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './Components/home/home.component';
 import { NavbarComponent } from './Components/navbar/navbar.component';
 import { LoginComponent } from './Components/login/login.component';
-import { ProfileComponent } from './Components/profile/profile.component';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { SessionExpiredComponent } from './Components/session-expired/session-expired.component';
+import { ResultDialogComponent } from './Components/result-dialog/result-dialog.component';
 
 @NgModule({
   declarations: [
@@ -17,16 +20,25 @@ import { ProfileComponent } from './Components/profile/profile.component';
     HomeComponent,
     NavbarComponent,
     LoginComponent,
-    ProfileComponent
+    SessionExpiredComponent,
+    ResultDialogComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FontAwesomeModule,
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FormsModule,
+    HttpClientModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

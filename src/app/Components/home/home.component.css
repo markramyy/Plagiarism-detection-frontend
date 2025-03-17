@@ -89,3 +89,60 @@ main{
         border-color: transparent;
     }
 }
+
+@media screen and (min-width: 300px){
+
+    .content{
+        width: 50%;
+    }
+
+}
+
+.btn.active {
+    background-color: #117C70;
+    color: white;
+}
+
+.spinner-border {
+    margin-right: 8px;
+}
+
+.checkButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.selected-file {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    word-break: break-all;
+}
+
+.selected-file button {
+    font-size: 16px;
+    padding: 0 6px;
+    margin-left: 8px;
+    line-height: 1;
+}
+
+.btn.checkButton {
+    background-color: #117C70;
+    color: white;
+}
+
+.btn.checkButton:hover {
+    background-color: #0c625a;
+}
+
+.spinner-border {
+    margin-right: 8px;
+}
