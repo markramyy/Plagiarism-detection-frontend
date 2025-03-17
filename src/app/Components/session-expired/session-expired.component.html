@@ -1,0 +1,11 @@
+<div class="session-dialog-overlay" *ngIf="showDialog">
+    <div class="session-dialog">
+      <div class="session-dialog-content">
+        <h3>Session Expired</h3>
+        <p>Your session has expired. Please log in again.</p>
+        <div class="session-dialog-actions">
+          <button class="btn btn-primary" (click)="close()">OK</button>
+        </div>
+      </div>
+    </div>
+</div>
