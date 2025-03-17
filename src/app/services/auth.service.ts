@@ -1,13 +1,33 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError, BehaviorSubject } from 'rxjs';
-import { tap, catchError, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { tap, catchError, switchMap, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../environment';
 
 interface TokenResponse {
   access: string;
   refresh: string;
+}
+
+interface RegisterResponse {
+  message: string;
+  tokens: TokenResponse;
+}
+
+interface RegisterPayload {
+  username: string;
+  email: string;
+  password: string;
+  password_confirm: string;
+}
+
+export interface ApiError {
+  detail?: string;
+  code?: string;
+  errors?: Record<string, string[]>;
+  non_field_errors?: string[];
+  [key: string]: any;
 }
 
 @Injectable({
@@ -30,6 +50,21 @@ export class AuthService {
       }),
       catchError(this.handleError)
     );
+  }
+
+  register(userData: RegisterPayload): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(`${this.baseUrl}/auth/api/signup/`, userData)
+      .pipe(
+        tap(response => {
+          // Store the tokens from the nested tokens object
+          if (response && response.tokens) {
+            this.storeTokens(response.tokens);
+          } else {
+            console.error('Registration response does not contain tokens', response);
+          }
+        }),
+        catchError(this.handleError)
+      );
   }
 
   refreshToken(): Observable<TokenResponse> {
@@ -82,21 +117,30 @@ export class AuthService {
   }
 
   private storeTokens(tokens: TokenResponse): void {
+    if (!tokens.access || !tokens.refresh) {
+      console.error('Invalid token data', tokens);
+      return;
+    }
+
     localStorage.setItem('accessToken', tokens.access);
     localStorage.setItem('refreshToken', tokens.refresh);
+    console.log('Tokens stored successfully', {
+      accessToken: !!tokens.access,
+      refreshToken: !!tokens.refresh
+    });
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
-    let errorMessage = 'An unknown error occurred';
+    let errorObj: ApiError = {};
 
     if (error.error instanceof ErrorEvent) {
       // Client-side error
-      errorMessage = `Error: ${error.error.message}`;
+      errorObj.detail = `Client error: ${error.error.message}`;
     } else {
       // Server-side error
-      errorMessage = error.error?.detail || 'Server error';
+      errorObj = error.error || { detail: 'Server error occurred' };
     }
 
-    return throwError(() => new Error(errorMessage));
+    return throwError(() => errorObj);
   }
 }

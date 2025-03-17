@@ -36,11 +36,19 @@
             <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
                 <h1>Registration</h1>
 
+                <!-- General errors section -->
+                <div *ngIf="hasRegisterError('general')" class="alert alert-danger">
+                    {{ getRegisterError('general') }}
+                </div>
+
                 <div class="input-box">
                     <input type="text" placeholder="Username" formControlName="username" required>
                     <fa-icon [icon]="faUser"></fa-icon>
                     <div *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched" class="error-message">
                         Username is required
+                    </div>
+                    <div *ngIf="hasRegisterError('username')" class="error-message">
+                        {{ getRegisterError('username') }}
                     </div>
                 </div>
 
@@ -50,6 +58,9 @@
                     <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="error-message">
                         Please enter a valid email
                     </div>
+                    <div *ngIf="hasRegisterError('email')" class="error-message">
+                        {{ getRegisterError('email') }}
+                    </div>
                 </div>
 
                 <div class="input-box">
@@ -57,6 +68,23 @@
                     <fa-icon [icon]="faLock"></fa-icon>
                     <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="error-message">
                         Password must be at least 8 characters
+                    </div>
+                    <div *ngIf="hasRegisterError('password')" class="error-message">
+                        {{ getRegisterError('password') }}
+                    </div>
+                </div>
+
+                <div class="input-box">
+                    <input type="password" placeholder="Confirm Password" formControlName="password_confirm" required>
+                    <fa-icon [icon]="faLock"></fa-icon>
+                    <div *ngIf="registerForm.get('password_confirm')?.errors?.['required'] && registerForm.get('password_confirm')?.touched" class="error-message">
+                        Password confirmation is required
+                    </div>
+                    <div *ngIf="registerForm.get('password_confirm')?.errors?.['passwordMismatch']" class="error-message">
+                        Passwords do not match
+                    </div>
+                    <div *ngIf="hasRegisterError('password_confirm')" class="error-message">
+                        {{ getRegisterError('password_confirm') }}
                     </div>
                 </div>
 
