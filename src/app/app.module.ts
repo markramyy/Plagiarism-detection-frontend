@@ -11,13 +11,15 @@ import { HomeComponent } from './Components/home/home.component';
 import { NavbarComponent } from './Components/navbar/navbar.component';
 import { LoginComponent } from './Components/login/login.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { SessionExpiredComponent } from './Components/session-expired/session-expired.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     NavbarComponent,
-    LoginComponent
+    LoginComponent,
+    SessionExpiredComponent
   ],
   imports: [
     BrowserModule,

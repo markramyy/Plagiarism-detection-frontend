@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -8,9 +9,11 @@ import { faUser } from '@fortawesome/free-solid-svg-icons';
 })
 
 export class NavbarComponent {
-
   userIcon = faUser;
 
-  constructor() { }
+  constructor(private authService: AuthService) { }
 
+  logout(): void {
+    this.authService.logout();
+  }
 }
