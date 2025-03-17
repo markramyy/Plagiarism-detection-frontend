@@ -1,43 +1,61 @@
 <main>
+
     <div class="box" #box>
+
         <div class="form-box login">
+
             <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+
                 <h1>Login</h1>
 
+                <!-- Username input -->
                 <div class="input-box">
-                    <input type="text" placeholder="Username" formControlName="username" required>
-                    <fa-icon [icon]="faUser"></fa-icon>
-                    <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched" class="error-message">
-                        Username is required
+
+                    <div class="input-field">
+                        <input type="text" placeholder="Username" formControlName="username" required>
+                        <fa-icon [icon]="faUser"></fa-icon>
                     </div>
+
+                    <!-- Handling username input -->
+                    <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+                        <p class="error-message">Username is required</p>
+                    </div>
+
                 </div>
                 
-
+                <!-- Password input -->
                 <div class="input-box">
-                    <input type="password" placeholder="Password" formControlName="password" required>
-                    <fa-icon [icon]="faLock"></fa-icon>
-                    <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error-message">
-                        Password is required
-                    </div>
-                </div>
 
-                <div *ngIf="loginError" class="alert alert-danger">
-                    {{ loginError }}
-                </div>
+                    <div class="input-field">
+                        <input type="password" placeholder="Password" formControlName="password" required>
+                        <fa-icon [icon]="faLock"></fa-icon>
+                    </div>
 
                     <!-- Handling password input -->
-                    <div *ngIf="LoginForm.get('password')?.invalid && LoginForm.get('password')?.touched">
-                        <p class="error-message" *ngIf="LoginForm.get('password')?.errors?.['required']">Password is required.</p>
+                    <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+                        <p class="error-message">Password is required</p>
+                    </div>
+
+                </div>
+
+                <div *ngIf="loginError" class="alert alert-danger"> {{ loginError }}
+
+                    <!-- Handling password input -->
+                    <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+                        <p class="error-message" *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.</p>
                     </div>
 
                 </div>
 
                 <button type="submit" class="btn" [disabled]="loginForm.invalid">Login</button>
+
             </form>
         </div>
 
         <div class="form-box register">
+
             <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+
                 <h1>Registration</h1>
 
                 <!-- General errors section -->
@@ -45,72 +63,114 @@
                     {{ getRegisterError('general') }}
                 </div>
 
+                <!-- Username input -->
                 <div class="input-box">
-                    <input type="text" placeholder="Username" formControlName="username" required>
-                    <fa-icon [icon]="faUser"></fa-icon>
-                    <div *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched" class="error-message">
-                        Username is required
+
+                    <div class="input-field">
+                        <input type="text" placeholder="Username" formControlName="username" required>
+                        <fa-icon [icon]="faUser"></fa-icon>
                     </div>
-                    <div *ngIf="hasRegisterError('username')" class="error-message">
-                        {{ getRegisterError('username') }}
+
+                    <!-- Handling username input -->
+                    <div *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
+                        <p class="error-message">Username is required</p>
                     </div>
+                    
+                    <!-- Displaying backend error -->
+                    <div *ngIf="hasRegisterError('username')">
+                        <p class="error-message">{{ getRegisterError('username') }}</p>
+                    </div>
+
                 </div>
 
 
-                <!-- Email input div -->
+                <!-- Email input -->
                 <div class="input-box">
-                    <input type="email" placeholder="Email" formControlName="email" required>
-                    <fa-icon [icon]="faEnvelope"></fa-icon>
-                    <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="error-message">
-                        Please enter a valid email
+
+                    <div class="input-field">
+                        <input type="email" placeholder="Email" formControlName="email" required>
+                        <fa-icon [icon]="faEnvelope"></fa-icon>
                     </div>
-                    <div *ngIf="hasRegisterError('email')" class="error-message">
-                        {{ getRegisterError('email') }}
+                    
+                    <!-- Handling Email input -->
+                    <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+                        <p class="error-message">Please enter a valid email</p>
                     </div>
+
+                    <!-- Displaying backend error -->
+                    <div *ngIf="hasRegisterError('email')">
+                        <p class="error-message">{{ getRegisterError('email') }}</p>
+                    </div>
+
                 </div>
 
 
-                <!-- Password input div -->
+                <!-- Password input -->
                 <div class="input-box">
-                    <input type="password" placeholder="Password" formControlName="password" required>
-                    <fa-icon [icon]="faLock"></fa-icon>
-                    <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="error-message">
-                        Password must be at least 8 characters
+
+                    <div class="input-field">
+                        <input type="password" placeholder="Password" formControlName="password" required>
+                        <fa-icon [icon]="faLock"></fa-icon>
                     </div>
-                    <div *ngIf="hasRegisterError('password')" class="error-message">
-                        {{ getRegisterError('password') }}
+
+                    <!-- Handling password input -->
+                    <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+                        <p class="error-message">Password must be at least 8 characters</p>
                     </div>
+
+                    <!-- Displaying backend error -->
+                    <div *ngIf="hasRegisterError('password')">
+                        <p class="error-message">{{ getRegisterError('password') }}</p>
+                    </div>
+
                 </div>
 
+                <!-- Confirm password input -->
                 <div class="input-box">
-                    <input type="password" placeholder="Confirm Password" formControlName="password_confirm" required>
-                    <fa-icon [icon]="faLock"></fa-icon>
-                    <div *ngIf="registerForm.get('password_confirm')?.errors?.['required'] && registerForm.get('password_confirm')?.touched" class="error-message">
-                        Password confirmation is required
+
+                    <div class="input-field">
+                        <input type="password" placeholder="Confirm Password" formControlName="password_confirm" required>
+                        <fa-icon [icon]="faLock"></fa-icon>
                     </div>
-                    <div *ngIf="registerForm.get('password_confirm')?.errors?.['passwordMismatch']" class="error-message">
-                        Passwords do not match
+
+                    <!-- Handling confirm password input -->
+                    <div *ngIf="registerForm.get('password_confirm')?.errors?.['required'] && registerForm.get('password_confirm')?.touched">
+                        <p class="error-message">Password confirmation is required</p>
                     </div>
+
+                    <div *ngIf="registerForm.get('password_confirm')?.errors?.['passwordMismatch']">
+                        <p class="error-message">Passwords do not match</p>
+                    </div>
+
+                    <!-- Displaying backend error -->
                     <div *ngIf="hasRegisterError('password_confirm')" class="error-message">
-                        {{ getRegisterError('password_confirm') }}
+                        <p class="error-message">{{ getRegisterError('password_confirm') }}</p>
                     </div>
+
                 </div>
 
                 <button type="submit" class="btn" [disabled]="registerForm.invalid">Register</button>
+
             </form>
+
         </div>
 
         <div class="toggle-box">
+
             <div class="toggle-panel toggle-left">
                 <h1>Hello, Welcome!</h1>
                 <p>Don't have an account?</p>
                 <button class="btn register-btn" #registerBtn>Register</button>
             </div>
+
             <div class="toggle-panel toggle-right">
                 <h1>Welcome Back!</h1>
                 <p>Already have an account?</p>
                 <button class="btn login-btn" #loginBtn>Login</button>
             </div>
+
         </div>
+
     </div>
+    
 </main>
