@@ -1,7 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { PlagiarismService } from '../../services/plagiarism.service';
-import { ResultDialogComponent } from '../result-dialog/result-dialog.component';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -11,7 +10,6 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
-  @ViewChild(ResultDialogComponent) resultDialog!: ResultDialogComponent;
 
   uplaodIcon = faCloudArrowUp;
   tabValue = 0;
@@ -122,7 +120,7 @@ export class HomeComponent implements OnInit {
           this.plagiarismService.checkTextToText(this.suspiciousText, this.sourceText)
             .subscribe({
               next: (result) => {
-                this.resultDialog.showResult(result);
+                this.router.navigate(['/result'], { state: { result } });
                 this.isLoading = false;
               },
               error: (error) => {
@@ -147,7 +145,7 @@ export class HomeComponent implements OnInit {
           this.plagiarismService.checkTextToFile(this.textToFileText, this.textToFileFile)
             .subscribe({
               next: (result) => {
-                this.resultDialog.showResult(result);
+                this.router.navigate(['/result'], { state: { result } });
                 this.isLoading = false;
               },
               error: (error) => {
@@ -167,7 +165,7 @@ export class HomeComponent implements OnInit {
           this.plagiarismService.checkFileToFile(this.firstFile, this.secondFile)
             .subscribe({
               next: (result) => {
-                this.resultDialog.showResult(result);
+                this.router.navigate(['/result'], { state: { result } });
                 this.isLoading = false;
               },
               error: (error) => {

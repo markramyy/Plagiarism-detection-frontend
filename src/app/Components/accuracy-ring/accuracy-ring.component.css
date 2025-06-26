@@ -1,0 +1,51 @@
+.progress-ring {
+  width: 200px;
+  height: 200px;
+}
+
+.ring-svg {
+  width: 200px;
+  height: 200px;
+}
+
+.ring-group {
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+.accuracy-text {
+  font-size: 28px;
+  fill: white;
+}
+
+circle.bg {
+  fill: none;
+  stroke: #eee;
+  stroke-width: 16;
+  cx: 100;
+  cy: 100;
+  r: 90;
+}
+
+circle.progress {
+  fill: none;
+  stroke: var(--ring-color, #4caf50);
+  stroke-width: 16;
+  stroke-dasharray: 565.48;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease-in-out, stroke 0.5s ease-in-out;
+  transform-origin: center;
+  animation: progressAnimation 1s ease-in-out;
+  cx: 100;
+  cy: 100;
+  r: 90;
+}
+
+@keyframes progressAnimation {
+  from {
+    stroke-dashoffset: 565.48;
+  }
+  to {
+    stroke-dashoffset: var(--dash-offset);
+  }
+}

@@ -12,7 +12,8 @@ import { NavbarComponent } from './Components/navbar/navbar.component';
 import { LoginComponent } from './Components/login/login.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { SessionExpiredComponent } from './Components/session-expired/session-expired.component';
-import { ResultDialogComponent } from './Components/result-dialog/result-dialog.component';
+import { ResultComponent } from './Components/result/result.component';
+import { AccuracyRingComponent } from './Components/accuracy-ring/accuracy-ring.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { ResultDialogComponent } from './Components/result-dialog/result-dialog.
     NavbarComponent,
     LoginComponent,
     SessionExpiredComponent,
-    ResultDialogComponent
+    ResultComponent,
+    AccuracyRingComponent
   ],
   imports: [
     BrowserModule,
@@ -31,7 +33,7 @@ import { ResultDialogComponent } from './Components/result-dialog/result-dialog.
     ReactiveFormsModule,
     FormsModule,
     HttpClientModule
-  ],
+],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
