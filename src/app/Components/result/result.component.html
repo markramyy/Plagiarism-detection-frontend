@@ -1,0 +1,17 @@
+<app-navbar></app-navbar>
+
+<header>
+    <div>
+        <h2>Plagiarism Result</h2>
+    </div>
+    <div class="accuracy-ring">
+        <!-- replace 92 with result.plagiarism.similarity_score -->
+        <app-accuracy-ring [accuracy]='result?.plagiarism?.similarity_score || 0'></app-accuracy-ring>
+    </div>
+</header>
+
+<main>
+    <div class="result-container">
+        <h2>{{result?.plagiarism?.is_plagiarized ? 'Plagiarism Detected' : 'No Plagiarism Detected'}}</h2>
+    </div>
+</main>

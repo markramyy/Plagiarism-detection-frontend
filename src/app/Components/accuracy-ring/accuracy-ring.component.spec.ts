@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ProfileComponent } from './profile.component';
+import { AccuracyRingComponent } from './accuracy-ring.component';
 
-describe('ProfileComponent', () => {
-  let component: ProfileComponent;
-  let fixture: ComponentFixture<ProfileComponent>;
+describe('AccuracyRingComponent', () => {
+  let component: AccuracyRingComponent;
+  let fixture: ComponentFixture<AccuracyRingComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ProfileComponent]
+      declarations: [AccuracyRingComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ProfileComponent);
+    fixture = TestBed.createComponent(AccuracyRingComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

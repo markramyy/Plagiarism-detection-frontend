@@ -5,18 +5,22 @@ import { environment } from '../../environment';
 import { AuthService } from './auth.service';
 
 export interface PlagiarismResponse {
+
   message: string;
+
   plagiarism: {
     verdict: string;
     confidence: number;
     is_plagiarized: boolean;
     similarity_score: number;
   };
+  
 }
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class PlagiarismService {
   private baseUrl = environment.apiBaseUrl;
 

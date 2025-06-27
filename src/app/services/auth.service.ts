@@ -33,6 +33,7 @@ export interface ApiError {
 @Injectable({
   providedIn: 'root'
 })
+
 export class AuthService {
   private baseUrl = environment.apiBaseUrl;
   private refreshTokenInProgress = false;

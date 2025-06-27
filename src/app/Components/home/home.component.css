@@ -34,7 +34,7 @@ main{
 }
 
 .content{
-    width: 75%;
+    width: 95%;
 }
 
 .box {
@@ -91,11 +91,9 @@ main{
 }
 
 @media screen and (min-width: 300px){
-
     .content{
-        width: 50%;
+        width: 90%;
     }
-
 }
 
 .btn.active {

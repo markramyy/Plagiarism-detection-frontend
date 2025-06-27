@@ -1,0 +1,11 @@
+<div class="progress-ring">
+    <svg class="ring-svg">
+        <g class="ring-group">
+            <circle class="bg" />
+            <circle class="progress" [attr.stroke-dashoffset]="dashOffset" />
+        </g>
+        <text class="accuracy-text" x="100" y="100" text-anchor="middle" dominant-baseline="middle">
+            {{ accuracy }}%
+        </text>
+    </svg>
+</div>
