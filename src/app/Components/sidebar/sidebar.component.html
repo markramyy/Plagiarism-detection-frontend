@@ -1,0 +1,56 @@
+<nav class="sidebar" [class.collapsed]="isCollapsed">
+  <div class="sidebar-header">
+    <div class="logo">
+      <span class="logo-text" *ngIf="!isCollapsed">Plagiarism Detector</span>
+    </div>
+    <button class="toggle-btn" (click)="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+
+  <div class="sidebar-content">
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a routerLink="/home" routerLinkActive="active" class="nav-link">
+          <i class="fas fa-home"></i>
+          <span *ngIf="!isCollapsed">Home</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a routerLink="/check" routerLinkActive="active" class="nav-link">
+          <i class="fas fa-search"></i>
+          <span *ngIf="!isCollapsed">Check Plagiarism</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a routerLink="/reports" routerLinkActive="active" class="nav-link">
+          <i class="fas fa-file-alt"></i>
+          <span *ngIf="!isCollapsed">Reports</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a routerLink="/history" routerLinkActive="active" class="nav-link">
+          <i class="fas fa-history"></i>
+          <span *ngIf="!isCollapsed">History</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a routerLink="/profile" routerLinkActive="active" class="nav-link">
+          <i class="fas fa-user"></i>
+          <span *ngIf="!isCollapsed">Profile</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="sidebar-footer">
+    <button class="logout-btn" (click)="logout()" [title]="isCollapsed ? 'Logout' : ''">
+      <i class="fas fa-sign-out-alt"></i>
+      <span *ngIf="!isCollapsed">Logout</span>
+    </button>
+  </div>
+</nav>

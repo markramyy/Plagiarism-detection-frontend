@@ -1,4 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import {
+  faShieldAlt,
+  faCheck,
+  faRobot,
+  faBolt,
+  faLock,
+  faFileAlt
+} from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -8,6 +16,14 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
+
+  // FontAwesome Icons
+  shieldIcon = faShieldAlt;
+  checkIcon = faCheck;
+  aiIcon = faRobot;
+  fastIcon = faBolt;
+  secureIcon = faLock;
+  formatIcon = faFileAlt;
 
   constructor(
     private authService: AuthService,

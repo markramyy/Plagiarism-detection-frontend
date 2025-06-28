@@ -1,0 +1,175 @@
+<div class="reports-container">
+  <div class="reports-header">
+    <div class="header-content">
+      <h1><i class="fas fa-file-alt"></i> Plagiarism Reports</h1>
+      <p>View and manage all your plagiarism detection reports</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" routerLink="/check">
+        <i class="fas fa-plus"></i> New Report
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters and Search -->
+  <div class="filters-section">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        placeholder="Search reports..."
+        [(ngModel)]="searchTerm"
+        (input)="filterReports()">
+    </div>
+    <div class="filter-controls">
+      <select [(ngModel)]="selectedVerdict" (change)="filterReports()" class="filter-select">
+        <option value="">All Verdicts</option>
+        <option value="LOW">Low Risk</option>
+        <option value="MID_LOW">Mid-Low Risk</option>
+        <option value="MID">Mid Risk</option>
+        <option value="MID_HIGH">Mid-High Risk</option>
+        <option value="HIGH">High Risk</option>
+      </select>
+      <select [(ngModel)]="selectedCheckType" (change)="filterReports()" class="filter-select">
+        <option value="">All Types</option>
+        <option value="text_to_text">Text to Text</option>
+        <option value="text_to_file">Text to File</option>
+        <option value="file_to_file">File to File</option>
+      </select>
+      <input
+        type="date"
+        [(ngModel)]="dateFilter"
+        (change)="filterReports()"
+        class="filter-date">
+    </div>
+  </div>
+
+  <!-- Reports Grid -->
+  <div class="reports-grid" *ngIf="filteredReports && filteredReports.length > 0">
+    <div class="report-card" *ngFor="let report of filteredReports" (click)="viewReport(report.guid)">
+      <div class="report-header">
+        <div class="report-type">
+          <i [class]="getTypeIcon(report.check_type)"></i>
+          <span>{{ getTypeLabel(report.check_type) }}</span>
+        </div>
+        <div class="report-date">
+          {{ report.created | date:'MMM dd, yyyy' }}
+        </div>
+      </div>
+
+      <div class="report-content">
+        <div class="report-title">
+          <h3>{{ getReportTitle(report) }}</h3>
+        </div>
+
+        <div class="report-files" *ngIf="report.suspicious_file_name || report.source_file_name">
+          <div class="file-info" *ngIf="report.suspicious_file_name">
+            <i class="fas fa-file-alt"></i>
+            <span>{{ getFileName(report.suspicious_file_name) }}</span>
+          </div>
+          <div class="file-info" *ngIf="report.source_file_name">
+            <i class="fas fa-file-text"></i>
+            <span>{{ getFileName(report.source_file_name) }}</span>
+          </div>
+        </div>
+
+        <div class="report-preview" *ngIf="report.suspicious_text">
+          <p>{{ getPreviewText(report.suspicious_text) }}</p>
+        </div>
+
+        <div class="report-metrics">
+          <div class="metric">
+            <app-accuracy-ring
+              [accuracy]="report.overall_score">
+            </app-accuracy-ring>
+            <span class="metric-label">Overall Score</span>
+          </div>
+
+          <div class="verdict-badge" [class]="'verdict-' + report.verdict.toLowerCase()">
+            {{ getVerdictLabel(report.verdict) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="report-footer">
+        <div class="report-stats">
+          <span class="stat-item">
+            <i class="fas fa-clock"></i>
+            {{ report.processing_time }}s
+          </span>
+          <span class="stat-item" *ngIf="report.component_scores?.length">
+            <i class="fas fa-chart-line"></i>
+            {{ report.component_scores.length }} components
+          </span>
+        </div>
+
+        <div class="report-actions">
+          <button class="action-btn" (click)="downloadReport(report, $event)" title="Download">
+            <i class="fas fa-download"></i>
+          </button>
+          <button class="action-btn" (click)="shareReport(report, $event)" title="Share">
+            <i class="fas fa-share"></i>
+          </button>
+          <button class="action-btn delete" (click)="deleteReport(report, $event)" title="Delete">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!filteredReports || filteredReports.length === 0">
+    <div class="empty-icon">
+      <i class="fas fa-file-alt"></i>
+    </div>
+    <h2>No Reports Found</h2>
+    <p *ngIf="searchTerm || selectedVerdict || selectedCheckType || dateFilter">
+      Try adjusting your filters or search terms.
+    </p>
+    <p *ngIf="!searchTerm && !selectedVerdict && !selectedCheckType && !dateFilter">
+      You haven't created any plagiarism reports yet.
+    </p>
+    <button class="btn btn-primary" routerLink="/home">
+      <i class="fas fa-plus"></i> Create Your First Report
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading reports...</p>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-section" *ngIf="filteredReports && filteredReports.length > 0">
+    <div class="pagination-info">
+      Showing {{ ((currentPage - 1) * pageSize) + 1 }} to {{ Math.min(currentPage * pageSize, totalReports) }} of {{ totalReports }} reports
+    </div>
+    <div class="pagination-controls">
+      <button
+        class="page-btn"
+        [disabled]="currentPage === 1"
+        (click)="goToPage(currentPage - 1)">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+
+      <span class="page-numbers">
+        <button
+          *ngFor="let page of getPageNumbers()"
+          class="page-btn"
+          [class.active]="page === currentPage"
+          (click)="goToPage(page)">
+          {{ page }}
+        </button>
+      </span>
+
+      <button
+        class="page-btn"
+        [disabled]="currentPage === totalPages"
+        (click)="goToPage(currentPage + 1)">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>

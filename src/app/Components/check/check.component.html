@@ -1,0 +1,306 @@
+<div class="check-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <fa-icon [icon]="shieldIcon" class="title-icon"></fa-icon>
+        Plagiarism Detection
+      </h1>
+      <p class="page-subtitle">Choose your comparison method and start detecting plagiarism</p>
+
+      <!-- Comparison Mode Tabs -->
+      <div class="mode-tabs">
+        <button
+          class="mode-tab"
+          [class.active]="tabValue === 0"
+          (click)="onTab(0)">
+          <fa-icon [icon]="textIcon"></fa-icon>
+          Text to Text
+        </button>
+        <button
+          class="mode-tab"
+          [class.active]="tabValue === 1"
+          (click)="onTab(1)">
+          <fa-icon [icon]="documentIcon"></fa-icon>
+          Text to File
+        </button>
+        <button
+          class="mode-tab"
+          [class.active]="tabValue === 2"
+          (click)="onTab(2)">
+          <fa-icon [icon]="filesIcon"></fa-icon>
+          File to File
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Text to Text Mode -->
+    <div class="comparison-card" *ngIf="tabValue === 0">
+      <div class="card-header">
+        <h2>
+          <fa-icon [icon]="textIcon"></fa-icon>
+          Text to Text Comparison
+        </h2>
+        <p>Compare two text snippets to detect similarities and potential plagiarism</p>
+      </div>
+
+      <div class="card-content">
+        <div class="input-grid">
+          <div class="input-section">
+            <label class="input-label">
+              <fa-icon [icon]="suspiciousIcon" class="label-icon"></fa-icon>
+              Suspicious Text
+            </label>
+            <div class="textarea-wrapper">
+              <textarea
+                class="modern-textarea"
+                placeholder="Enter the text you want to check for plagiarism..."
+                [(ngModel)]="suspiciousText"
+                rows="12">
+              </textarea>
+              <div class="char-counter">{{ suspiciousText.length }} characters</div>
+            </div>
+          </div>
+
+          <div class="input-section">
+            <label class="input-label">
+              <fa-icon [icon]="sourceIcon" class="label-icon"></fa-icon>
+              Source Text
+            </label>
+            <div class="textarea-wrapper">
+              <textarea
+                class="modern-textarea"
+                placeholder="Enter the source text to compare against..."
+                [(ngModel)]="sourceText"
+                rows="12">
+              </textarea>
+              <div class="char-counter">{{ sourceText.length }} characters</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-section">
+          <div class="quick-actions">
+            <button class="btn-secondary" (click)="clearTextInputs()">
+              <fa-icon [icon]="clearIcon"></fa-icon>
+              Clear All
+            </button>
+            <button class="btn-secondary" (click)="pasteFromClipboard('suspicious')">
+              <fa-icon [icon]="pasteIcon"></fa-icon>
+              Paste to Suspicious
+            </button>
+            <button class="btn-secondary" (click)="pasteFromClipboard('source')">
+              <fa-icon [icon]="pasteIcon"></fa-icon>
+              Paste to Source
+            </button>
+          </div>
+
+          <button
+            class="btn-primary check-button"
+            [disabled]="isLoading || !suspiciousText || !sourceText"
+            (click)="checkForPlagiarism()">
+            <fa-icon [icon]="isLoading ? spinnerIcon : checkIcon" [class.fa-spin]="isLoading"></fa-icon>
+            {{ isLoading ? 'Analyzing...' : 'Check for Plagiarism' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Text to File Mode -->
+    <div class="comparison-card" *ngIf="tabValue === 1">
+      <div class="card-header">
+        <h2>
+          <fa-icon [icon]="documentIcon"></fa-icon>
+          Text to File Comparison
+        </h2>
+        <p>Compare your text against uploaded documents to detect similarities</p>
+      </div>
+
+      <div class="card-content">
+        <div class="input-grid text-file-grid">
+          <div class="input-section text-section">
+            <label class="input-label">
+              <fa-icon [icon]="suspiciousIcon" class="label-icon"></fa-icon>
+              Suspicious Text
+            </label>
+            <div class="textarea-wrapper">
+              <textarea
+                class="modern-textarea"
+                placeholder="Enter the text you want to check for plagiarism..."
+                [(ngModel)]="textToFileText"
+                rows="10">
+              </textarea>
+              <div class="char-counter">{{ textToFileText.length }} characters</div>
+            </div>
+          </div>
+
+          <div class="input-section file-section">
+            <label class="input-label">
+              <fa-icon [icon]="uploadIcon" class="label-icon"></fa-icon>
+              Source Document
+            </label>
+            <div class="file-upload-zone compact"
+                 [class.has-file]="textToFileFileName"
+                 (dragover)="onDragOver($event)"
+                 (dragleave)="onDragLeave($event)"
+                 (drop)="onDrop($event, 'textToFile')"
+                 (click)="triggerFileInput('text-file-input')">
+
+              <input type="file"
+                     id="text-file-input"
+                     (change)="onTextToFileFileSelected($event)"
+                     accept=".txt,.doc,.docx,.pdf"
+                     style="display: none;">
+
+              <div class="upload-content" *ngIf="!textToFileFileName">
+                <fa-icon [icon]="uploadIcon" class="upload-icon"></fa-icon>
+                <h4>Drop file here</h4>
+                <p>or click to browse</p>
+                <small>Supports .txt, .doc, .docx, .pdf files</small>
+              </div>
+
+              <div class="file-info" *ngIf="textToFileFileName">
+                <fa-icon [icon]="fileIcon" class="file-icon"></fa-icon>
+                <div class="file-details">
+                  <span class="file-name">{{ textToFileFileName }}</span>
+                  <small class="file-size">{{ getFileSize(textToFileFile) }}</small>
+                </div>
+                <button class="remove-file" (click)="clearTextToFileFile(); $event.stopPropagation()">
+                  <fa-icon [icon]="removeIcon"></fa-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-section">
+          <div class="quick-actions">
+            <button class="btn-secondary" (click)="clearTextToFileInputs()">
+              <fa-icon [icon]="clearIcon"></fa-icon>
+              Clear All
+            </button>
+          </div>
+
+          <button
+            class="btn-primary check-button"
+            [disabled]="isLoading || !textToFileText || !textToFileFile"
+            (click)="checkForPlagiarism()">
+            <fa-icon [icon]="isLoading ? spinnerIcon : checkIcon" [class.fa-spin]="isLoading"></fa-icon>
+            {{ isLoading ? 'Analyzing...' : 'Check for Plagiarism' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- File to File Mode -->
+    <div class="comparison-card" *ngIf="tabValue === 2">
+      <div class="card-header">
+        <h2>
+          <fa-icon [icon]="filesIcon"></fa-icon>
+          File to File Comparison
+        </h2>
+        <p>Upload two documents to compare them for similarities and plagiarism</p>
+      </div>
+
+      <div class="card-content">
+        <div class="input-grid file-file-grid">
+          <div class="input-section">
+            <label class="input-label">
+              <fa-icon [icon]="suspiciousIcon" class="label-icon"></fa-icon>
+              Suspicious Document
+            </label>
+            <div class="file-upload-zone"
+                 [class.has-file]="firstFileName"
+                 (dragover)="onDragOver($event)"
+                 (dragleave)="onDragLeave($event)"
+                 (drop)="onDrop($event, 'first')"
+                 (click)="triggerFileInput('file-input-1')">
+
+              <input type="file"
+                     id="file-input-1"
+                     (change)="onFirstFileSelected($event)"
+                     accept=".txt,.doc,.docx,.pdf"
+                     style="display: none;">
+
+              <div class="upload-content" *ngIf="!firstFileName">
+                <fa-icon [icon]="uploadIcon" class="upload-icon"></fa-icon>
+                <h3>Drop suspicious file here</h3>
+                <p>or click to browse</p>
+                <small>Supports .txt, .doc, .docx, .pdf files</small>
+              </div>
+
+              <div class="file-info" *ngIf="firstFileName">
+                <fa-icon [icon]="fileIcon" class="file-icon"></fa-icon>
+                <div class="file-details">
+                  <span class="file-name">{{ firstFileName }}</span>
+                  <small class="file-size">{{ getFileSize(firstFile) }}</small>
+                </div>
+                <button class="remove-file" (click)="clearFirstFile(); $event.stopPropagation()">
+                  <fa-icon [icon]="removeIcon"></fa-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="input-section">
+            <label class="input-label">
+              <fa-icon [icon]="sourceIcon" class="label-icon"></fa-icon>
+              Source Document
+            </label>
+            <div class="file-upload-zone"
+                 [class.has-file]="secondFileName"
+                 (dragover)="onDragOver($event)"
+                 (dragleave)="onDragLeave($event)"
+                 (drop)="onDrop($event, 'second')"
+                 (click)="triggerFileInput('file-input-2')">
+
+              <input type="file"
+                     id="file-input-2"
+                     (change)="onSecondFileSelected($event)"
+                     accept=".txt,.doc,.docx,.pdf"
+                     style="display: none;">
+
+              <div class="upload-content" *ngIf="!secondFileName">
+                <fa-icon [icon]="uploadIcon" class="upload-icon"></fa-icon>
+                <h3>Drop source file here</h3>
+                <p>or click to browse</p>
+                <small>Supports .txt, .doc, .docx, .pdf files</small>
+              </div>
+
+              <div class="file-info" *ngIf="secondFileName">
+                <fa-icon [icon]="fileIcon" class="file-icon"></fa-icon>
+                <div class="file-details">
+                  <span class="file-name">{{ secondFileName }}</span>
+                  <small class="file-size">{{ getFileSize(secondFile) }}</small>
+                </div>
+                <button class="remove-file" (click)="clearSecondFile(); $event.stopPropagation()">
+                  <fa-icon [icon]="removeIcon"></fa-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-section">
+          <div class="quick-actions">
+            <button class="btn-secondary" (click)="clearFileInputs()">
+              <fa-icon [icon]="clearIcon"></fa-icon>
+              Clear All
+            </button>
+          </div>
+
+          <button
+            class="btn-primary check-button"
+            [disabled]="isLoading || !firstFile || !secondFile"
+            (click)="checkForPlagiarism()">
+            <fa-icon [icon]="isLoading ? spinnerIcon : checkIcon" [class.fa-spin]="isLoading"></fa-icon>
+            {{ isLoading ? 'Analyzing...' : 'Check for Plagiarism' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

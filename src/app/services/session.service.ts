@@ -13,6 +13,11 @@ export class SessionService {
     private injector: Injector
   ) { }
 
+  isAuthenticated(): boolean {
+    // Check for a token in localStorage (or use your own logic)
+    return !!localStorage.getItem('access_token');
+  }
+
   showSessionExpiredDialog(): void {
     // Create component dynamically
     if (!this.sessionExpiredComponentRef) {

@@ -14,6 +14,12 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { SessionExpiredComponent } from './Components/session-expired/session-expired.component';
 import { ResultComponent } from './Components/result/result.component';
 import { AccuracyRingComponent } from './Components/accuracy-ring/accuracy-ring.component';
+import { SidebarComponent } from './Components/sidebar/sidebar.component';
+import { CheckComponent } from './Components/check/check.component';
+import { ProfileComponent } from './Components/profile/profile.component';
+import { ReportsComponent } from './Components/reports/reports.component';
+import { ReportDetailComponent } from './Components/report-detail/report-detail.component';
+import { HistoryComponent } from './Components/history/history.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +29,13 @@ import { AccuracyRingComponent } from './Components/accuracy-ring/accuracy-ring.
     LoginComponent,
     SessionExpiredComponent,
     ResultComponent,
-    AccuracyRingComponent
+    AccuracyRingComponent,
+    ProfileComponent,
+    ReportsComponent,
+    ReportDetailComponent,
+    HistoryComponent,
+    SidebarComponent,
+    CheckComponent
   ],
   imports: [
     BrowserModule,

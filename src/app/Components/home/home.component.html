@@ -1,144 +1,99 @@
-<app-navbar></app-navbar>
+<div class="home-container">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        <i class="fas fa-shield-alt hero-icon"></i>
+        Spot Plagiarism, Ensure Originality
+      </h1>
+      <p class="hero-subtitle">Advanced AI-powered plagiarism detection for students, educators, and professionals</p>
 
-<header>
-    <div>
-        <h2>Spot Plagiarism, Ensure Originality</h2>
-        <p class="typing-effect">Compare two files with ease, type or upload and let the checker do the rest..</p>
+      <!-- Call to Action -->
+      <div class="cta-section">
+        <button class="btn-primary cta-button" (click)="startChecking()">
+          <i class="fas fa-check-circle"></i>
+          Start Checking for Plagiarism
+        </button>
+        <p class="cta-subtitle">Get accurate results in seconds</p>
+      </div>
     </div>
+  </div>
 
-    <div class="tabs py-sm-3 px-sm-5">
-        <button class="btn btn-outline-success" [class.active]="tabValue === 0" (click)="onTab(0)">Text To Text</button>
-        <button class="btn btn-outline-success mx-5" [class.active]="tabValue === 1" (click)="onTab(1)">Text To File</button>
-        <button class="btn btn-outline-success" [class.active]="tabValue === 2" (click)="onTab(2)">File To File</button>
+  <!-- Features Section -->
+  <div class="features-section">
+    <h2>Why Choose Our Plagiarism Detector?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-brain"></i>
+        </div>
+        <h3>AI-Powered Detection</h3>
+        <p>Advanced machine learning algorithms for accurate plagiarism detection across multiple sources</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-tachometer-alt"></i>
+        </div>
+        <h3>Lightning Fast</h3>
+        <p>Get comprehensive results in seconds with our optimized processing engine</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-lock"></i>
+        </div>
+        <h3>Secure & Private</h3>
+        <p>Your documents are processed securely and never stored permanently on our servers</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-file-text"></i>
+        </div>
+        <h3>Multiple Formats</h3>
+        <p>Support for text, PDF, DOC, DOCX, and more file formats for maximum flexibility</p>
+      </div>
     </div>
-</header>
+  </div>
 
-<main>
-    
-    <!-- Text To Text div -->
-    <div *ngIf="tabValue == 0" class="content">
-        <h3 class="mb-5">Enter two texts to compare between them</h3>
-
-        <div class="box">
-            <div class="row gx-2 p-1">
-                <div class="col-md-6">
-                    <div>
-                        <textarea rows="20" class="form-control" placeholder="Enter Your Suspicious Text" [(ngModel)]="suspiciousText"></textarea>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div>
-                        <textarea rows="20" class="form-control" placeholder="Enter Your Source Text" [(ngModel)]="sourceText"></textarea>
-                    </div>
-                </div>
-            </div>
+  <!-- How It Works Section -->
+  <div class="how-it-works-section">
+    <h2>How It Works</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Upload or Paste Content</h3>
+          <p>Add your text or upload documents in various formats including PDF, DOC, and TXT files</p>
         </div>
+      </div>
 
-        <div class="d-flex justify-content-end mt-3">
-            <button class="btn checkButton" [disabled]="isLoading" (click)="checkForPlagiarism()">
-                <span *ngIf="isLoading" class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
-                Check For Plagiarism
-            </button>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Choose Comparison Method</h3>
+          <p>Select from text-to-text, text-to-file, or file-to-file comparison modes</p>
         </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Get Detailed Results</h3>
+          <p>Receive comprehensive plagiarism reports with highlighted similarities and accuracy scores</p>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Text To File div -->
-    <div *ngIf="tabValue == 1" class="content">
-        <h3 class="mb-5">Upload a document to compare with text</h3>
-
-        <div class="box p-2">
-            <div class="row gx-2">
-                <div class="col-md-6">
-                    <div>
-                        <textarea rows="20" class="form-control" placeholder="Enter Your Suspicious Text" [(ngModel)]="textToFileText"></textarea>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="input h-100">
-                        <div class="p-5 mb-1">
-                            <input type="file" id="text-file-input" (change)="onTextToFileFileSelected($event)" style="display: none;">
-                            <div class="text-center">
-                                <span class="d-block mb-3">
-                                    <fa-icon [icon]="uplaodIcon" class="fs-1 text-success"></fa-icon>
-                                </span>
-                                <div *ngIf="textToFileFileName" class="selected-file mb-3">
-                                    <span>{{textToFileFileName}}</span>
-                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="clearTextToFileFile()">×</button>
-                                </div>
-                                <label for="text-file-input" class="btn btn-success">
-                                    {{ textToFileFileName ? 'Change Source File' : 'Upload Source File' }}
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="d-flex justify-content-end mt-3">
-            <button class="btn checkButton" [disabled]="isLoading" (click)="checkForPlagiarism()">
-                <span *ngIf="isLoading" class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
-                Check For Plagiarism
-            </button>
-        </div>
-    </div>
-
-    <!-- File To File div -->
-    <div *ngIf="tabValue == 2" class="content">
-        <h3 class="mb-5">Upload two documents to compare between them</h3>
-
-        <div class="box">
-            <div class="row gx-2 p-1">
-                <div class="col-md-6">
-                    <div class="input h-100">
-                        <div class="p-5 mb-1">
-                            <input type="file" id="file-input-1" (change)="onFirstFileSelected($event)" style="display: none;">
-                            <div class="text-center">
-                                <span class="d-block mb-3">
-                                    <fa-icon [icon]="uplaodIcon" class="fs-1 text-success"></fa-icon>
-                                </span>
-                                <div *ngIf="firstFileName" class="selected-file mb-3">
-                                    <span>{{firstFileName}}</span>
-                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="clearFirstFile()">×</button>
-                                </div>
-                                <label for="file-input-1" class="btn btn-success">
-                                    {{ firstFileName ? 'Change Suspicious File' : 'Upload Suspicious File' }}
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="input h-100">
-                        <div class="p-5 mb-1">
-                            <input type="file" id="file-input-2" (change)="onSecondFileSelected($event)" style="display: none;">
-                            <div class="text-center">
-                                <span class="d-block mb-3">
-                                    <fa-icon [icon]="uplaodIcon" class="fs-1 text-success"></fa-icon>
-                                </span>
-                                <div *ngIf="secondFileName" class="selected-file mb-3">
-                                    <span>{{secondFileName}}</span>
-                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="clearSecondFile()">×</button>
-                                </div>
-                                <label for="file-input-2" class="btn btn-success">
-                                    {{ secondFileName ? 'Change Source File' : 'Upload Source File' }}
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="d-flex justify-content-end mt-3">
-            <button class="btn checkButton" [disabled]="isLoading" (click)="checkForPlagiarism()">
-                <span *ngIf="isLoading" class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
-                Check For Plagiarism
-            </button>
-        </div>
-    </div>
-
-</main>
+  <!-- CTA Section -->
+  <div class="final-cta-section">
+    <h2>Ready to Detect Plagiarism?</h2>
+    <p>Join thousands of users who trust our advanced plagiarism detection technology</p>
+    <button class="btn-primary cta-button" (click)="startChecking()">
+      <i class="fas fa-shield-alt"></i>
+      Get Started Now
+    </button>
+  </div>
+</div>

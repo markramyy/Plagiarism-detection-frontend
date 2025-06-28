@@ -1,0 +1,225 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <div class="profile-banner">
+      <div class="profile-info">
+        <div class="avatar-section">
+          <div class="profile-avatar">
+            <i class="fas fa-user-circle"></i>
+          </div>
+          <button class="change-photo-btn">
+            <i class="fas fa-camera"></i>
+          </button>
+        </div>
+        <div class="user-details">
+          <h1 class="user-name">{{ userProfile?.first_name }} {{ userProfile?.last_name }}</h1>
+          <p class="user-email">{{ userProfile?.email }}</p>
+          <p class="member-since">Member since {{ userProfile?.date_joined | date:'MMM yyyy' }}</p>
+        </div>
+      </div>
+      <div class="profile-actions">
+        <button class="btn btn-primary" (click)="editMode = !editMode">
+          <i class="fas fa-edit"></i>
+          {{ editMode ? 'Cancel' : 'Edit Profile' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-content">
+    <div class="row">
+      <!-- Personal Information -->
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-user"></i> Personal Information</h3>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" *ngIf="editMode">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input
+                      type="text"
+                      id="firstName"
+                      class="form-control"
+                      formControlName="firstName"
+                      placeholder="Enter first name">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      class="form-control"
+                      formControlName="lastName"
+                      placeholder="Enter last name">
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  class="form-control"
+                  formControlName="email"
+                  placeholder="Enter email">
+              </div>
+              <div class="form-group">
+                <label for="username">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  class="form-control"
+                  formControlName="username"
+                  placeholder="Enter username">
+              </div>
+              <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i> Save Changes
+              </button>
+            </form>
+
+            <!-- View Mode -->
+            <div *ngIf="!editMode" class="profile-view">
+              <div class="info-row">
+                <span class="label">First Name:</span>
+                <span class="value">{{ userProfile?.first_name || 'Not set' }}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Last Name:</span>
+                <span class="value">{{ userProfile?.last_name || 'Not set' }}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Email:</span>
+                <span class="value">{{ userProfile?.email }}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Username:</span>
+                <span class="value">{{ userProfile?.username }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-lock"></i> Change Password</h3>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+              <div class="form-group">
+                <label for="currentPassword">Current Password</label>
+                <input
+                  type="password"
+                  id="currentPassword"
+                  class="form-control"
+                  formControlName="currentPassword"
+                  placeholder="Enter current password">
+              </div>
+              <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <input
+                  type="password"
+                  id="newPassword"
+                  class="form-control"
+                  formControlName="newPassword"
+                  placeholder="Enter new password">
+              </div>
+              <div class="form-group">
+                <label for="confirmPassword">Confirm New Password</label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  class="form-control"
+                  formControlName="confirmPassword"
+                  placeholder="Confirm new password">
+              </div>
+              <button type="submit" class="btn btn-warning" [disabled]="passwordForm.invalid">
+                <i class="fas fa-key"></i> Change Password
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistics -->
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-chart-bar"></i> Statistics</h3>
+          </div>
+          <div class="card-body">
+            <div class="stat-item">
+              <div class="stat-icon">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-number">{{ userStats?.totalReports || 0 }}</span>
+                <span class="stat-label">Total Reports</span>
+              </div>
+            </div>
+
+            <div class="stat-item">
+              <div class="stat-icon">
+                <i class="fas fa-calendar-month"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-number">{{ userStats?.thisMonth || 0 }}</span>
+                <span class="stat-label">This Month</span>
+              </div>
+            </div>
+
+            <div class="stat-item">
+              <div class="stat-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-number">{{ userStats?.highRiskReports || 0 }}</span>
+                <span class="stat-label">High Risk Reports</span>
+              </div>
+            </div>
+
+            <div class="stat-item">
+              <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-number">{{ userStats?.avgProcessingTime || '0' }}s</span>
+                <span class="stat-label">Avg Processing Time</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-history"></i> Recent Activity</h3>
+          </div>
+          <div class="card-body">
+            <div class="activity-list">
+              <div class="activity-item" *ngFor="let activity of recentActivity">
+                <div class="activity-icon">
+                  <i [class]="activity.icon"></i>
+                </div>
+                <div class="activity-content">
+                  <p class="activity-text">{{ activity.description }}</p>
+                  <small class="activity-time">{{ activity.timestamp | date:'short' }}</small>
+                </div>
+              </div>
+
+              <div *ngIf="!recentActivity || recentActivity.length === 0" class="no-activity">
+                <i class="fas fa-info-circle"></i>
+                <p>No recent activity</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,321 @@
+<div class="report-detail-container" *ngIf="report">
+  <!-- Header -->
+  <div class="report-header">
+    <div class="header-navigation">
+      <button class="back-btn" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i> Back to Reports
+      </button>
+    </div>
+
+    <div class="header-content">
+      <div class="report-title">
+        <h1>{{ getReportTitle() }}</h1>
+        <div class="report-meta">
+          <span class="report-id">ID: {{ report.guid }}</span>
+          <span class="report-date">{{ report.created | date:'MMM dd, yyyy - HH:mm' }}</span>
+          <div class="report-type-badge" [class]="'type-' + report.check_type">
+            <i [class]="getTypeIcon()"></i>
+            {{ getTypeLabel() }}
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn btn-secondary" (click)="downloadReport()">
+          <i class="fas fa-download"></i> Download
+        </button>
+        <button class="btn btn-secondary" (click)="shareReport()">
+          <i class="fas fa-share-alt"></i> Share
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="report-content">
+    <!-- Score Overview -->
+    <div class="score-section">
+      <div class="score-card">
+        <div class="score-visual">
+          <div class="score-ring-container">
+            <app-accuracy-ring
+              [accuracy]="report.overall_score || 0">
+            </app-accuracy-ring>
+            <div class="score-text">
+              <h2>{{ (report.overall_score || 0).toFixed(1) }}%</h2>
+              <span>Overall Similarity</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-details">
+          <div class="verdict-section">
+            <div class="verdict-badge" [class]="'verdict-' + report.verdict.toLowerCase()">
+              <i [class]="getVerdictIcon()"></i>
+              {{ getVerdictLabel() }}
+            </div>
+            <div class="verdict-info">
+              <p><i class="fas fa-info-circle"></i>
+              Confidence: {{ ((report.confidence || 0) * 100).toFixed(1) }}%</p>
+              <p><i class="fas fa-clock"></i>
+              Processing Time: {{ (report.processing_time || 0).toFixed(2) }}s</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Component Scores -->
+    <div class="components-section">
+      <div class="section-header">
+        <h2><i class="fas fa-chart-bar"></i> Component Analysis</h2>
+      </div>
+      <div class="components-grid">
+        <div class="component-item" *ngFor="let component of report.component_scores">
+          <div class="component-header">
+            <h4>{{ component.component_display }}</h4>
+            <span class="component-weight">Weight: {{ (component.weight * 100).toFixed(0) }}%</span>
+          </div>
+          <div class="component-score">
+            <div class="score-bar">
+              <div class="score-fill" [style.width.%]="component.score"></div>
+            </div>
+            <span class="score-value">{{ component.formatted_score }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Text Comparison -->
+    <div class="comparison-section">
+      <div class="section-header">
+        <h2><i class="fas fa-code-branch"></i> Text Comparison</h2>
+        <div class="comparison-controls">
+          <div class="view-toggle">
+            <button
+              [class.active]="comparisonView === 'side-by-side'"
+              (click)="comparisonView = 'side-by-side'">
+              <i class="fas fa-columns"></i> Side by Side
+            </button>
+            <button
+              [class.active]="comparisonView === 'unified'"
+              (click)="comparisonView = 'unified'">
+              <i class="fas fa-align-left"></i> Unified
+            </button>
+          </div>
+          <button class="btn btn-secondary" (click)="highlightMatches()">
+            <i class="fas fa-highlighter"></i> Highlight Matches
+          </button>
+        </div>
+      </div>
+
+      <div class="comparison-content" [class]="comparisonView">
+        <div class="text-panel suspicious-text">
+          <div class="panel-header">
+            <h3><i class="fas fa-file-alt"></i> Suspicious Text</h3>
+            <div class="text-stats">
+              <span><i class="fas fa-font"></i> {{ getSuspiciousWordCount() }} words</span>
+              <button class="copy-btn" (click)="copyToClipboard(report.suspicious_text)">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </div>
+          <div class="text-content">
+            <pre [innerHTML]="highlightedSuspiciousText"></pre>
+          </div>
+        </div>
+
+        <div class="text-panel source-text">
+          <div class="panel-header">
+            <h3><i class="fas fa-file-text"></i> Source Text</h3>
+            <div class="text-stats">
+              <span><i class="fas fa-font"></i> {{ getSourceWordCount() }} words</span>
+              <button class="copy-btn" (click)="copyToClipboard(report.source_text)">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </div>
+          <div class="text-content">
+            <pre [innerHTML]="highlightedSourceText"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Matching Segments -->
+  <div class="segments-section" *ngIf="report.matching_segments && report.matching_segments.length > 0">
+    <div class="section-header">
+      <h2><i class="fas fa-puzzle-piece"></i> Matching Segments</h2>
+      <span class="segment-count">{{ report.matching_segments.length }} matches found</span>
+    </div>
+    <div class="segments-list">
+      <div class="segment-item" *ngFor="let segment of report.matching_segments; let i = index">
+        <div class="segment-header" (click)="toggleSegment(i)">
+          <div class="segment-info">
+            <span class="segment-score">{{ (segment.similarity_score || 0).toFixed(1) }}%</span>
+            <span class="segment-text-preview">{{ (segment.suspicious_text || 'No preview available').substring(0, 80) }}...</span>
+          </div>
+          <i [class]="expandedSegments[i] ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
+        </div>
+        <div class="segment-content" *ngIf="expandedSegments[i]">
+          <div class="segment-texts">
+            <div class="segment-suspicious">
+              <h5>Suspicious Text:</h5>
+              <p>{{ segment.suspicious_text }}</p>
+            </div>
+            <div class="segment-source">
+              <h5>Source Text:</h5>
+              <p>{{ segment.source_text }}</p>
+            </div>
+          </div>
+          <div class="segment-analysis" *ngIf="segment.analysis_data">
+            <h5>Analysis Data:</h5>
+            <pre>{{ segment.analysis_data | json }}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analysis Insights -->
+  <div class="insights-section" *ngIf="report.analysis_insights && report.analysis_insights.length > 0">
+    <div class="section-header">
+      <h2><i class="fas fa-lightbulb"></i> Analysis Insights</h2>
+    </div>
+    <div class="insights-list">
+      <div class="insight-item" *ngFor="let insight of report.analysis_insights">
+        <div class="insight-content">
+          <i class="fas fa-info-circle"></i>
+          <span>{{ insight.insight }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Explanations -->
+  <div class="explanations-section" *ngIf="report.explanations && report.explanations.length > 0">
+    <div class="section-header">
+      <h2><i class="fas fa-comment-alt"></i> Detailed Explanations</h2>
+    </div>
+    <div class="explanations-list">
+      <div class="explanation-item" *ngFor="let explanation of report.explanations">
+        <div class="explanation-content">
+          <i class="fas fa-quote-left"></i>
+          <p>{{ explanation.explanation }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- File Details -->
+  <div class="files-section" *ngIf="report.suspicious_file_detail || report.source_file_detail">
+    <div class="section-header">
+      <h2><i class="fas fa-folder"></i> File Information</h2>
+    </div>
+    <div class="files-grid">
+      <div class="file-item" *ngIf="report.suspicious_file_detail">
+        <div class="file-header">
+          <h4><i class="fas fa-file-alt"></i> Suspicious File</h4>
+        </div>
+        <div class="file-details">
+          <p><strong>Type:</strong> {{ report.suspicious_file_detail.file_type.toUpperCase() }}</p>
+          <p><strong>File:</strong> {{ getFileName(report.suspicious_file_detail.file) }}</p>
+          <a [href]="report.suspicious_file_detail.file" target="_blank" class="file-link">
+            <i class="fas fa-external-link-alt"></i> View File
+          </a>
+        </div>
+      </div>
+
+      <div class="file-item" *ngIf="report.source_file_detail">
+        <div class="file-header">
+          <h4><i class="fas fa-file-text"></i> Source File</h4>
+        </div>
+        <div class="file-details">
+          <p><strong>Type:</strong> {{ report.source_file_detail.file_type.toUpperCase() }}</p>
+          <p><strong>File:</strong> {{ getFileName(report.source_file_detail.file) }}</p>
+          <a [href]="report.source_file_detail.file" target="_blank" class="file-link">
+            <i class="fas fa-external-link-alt"></i> View File
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Details -->
+  <div class="technical-section">
+    <div class="section-header">
+      <h2><i class="fas fa-cog"></i> Technical Details</h2>
+      <button class="expand-btn" (click)="showTechnicalDetails = !showTechnicalDetails">
+        <i [class]="showTechnicalDetails ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
+      </button>
+    </div>
+
+    <div class="technical-content" *ngIf="showTechnicalDetails">
+      <div class="tech-grid">
+        <div class="tech-item">
+          <label>Processing Time:</label>
+          <span>{{ report.processing_time || 0 }}s</span>
+        </div>
+        <div class="tech-item">
+          <label>Check Type:</label>
+          <span>{{ getTypeLabel() }}</span>
+        </div>
+        <div class="tech-item">
+          <label>Created:</label>
+          <span>{{ report.created | date:'full' }}</span>
+        </div>
+        <div class="tech-item" *ngIf="report.notes">
+          <label>Notes:</label>
+          <span>{{ report.notes }}</span>
+        </div>
+      </div>
+
+      <!-- Scoring Details -->
+      <div class="scoring-details" *ngIf="report.scoring_details && report.scoring_details.length > 0">
+        <h4><i class="fas fa-calculator"></i> Scoring Calculation</h4>
+        <div class="scoring-item" *ngFor="let detail of report.scoring_details">
+          <div class="scoring-row">
+            <label>Basic Calculation:</label>
+            <span>{{ detail.basic_calculation }}</span>
+          </div>
+          <div class="scoring-row">
+            <label>Enhanced Score:</label>
+            <span>{{ detail.enhanced_score }}</span>
+          </div>
+          <div class="scoring-row">
+            <label>Weights Used:</label>
+            <span>{{ detail.weights_used }}</span>
+          </div>
+          <div class="scoring-row" *ngIf="detail.enhancement">
+            <label>Enhancement:</label>
+            <span>{{ detail.enhancement }}</span>
+          </div>
+          <div class="scoring-row" *ngIf="detail.enhancement_reason">
+            <label>Enhancement Reason:</label>
+            <span>{{ detail.enhancement_reason }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div class="loading-container" *ngIf="loading">
+  <div class="loading-spinner">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Loading report details...</p>
+  </div>
+</div>
+
+<!-- Error State -->
+<div class="error-container" *ngIf="error">
+  <div class="error-content">
+    <i class="fas fa-exclamation-triangle"></i>
+    <h3>Error Loading Report</h3>
+    <p>{{ error }}</p>
+    <button class="btn btn-primary" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i> Back to Reports
+    </button>
+  </div>
+</div>

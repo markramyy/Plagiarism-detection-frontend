@@ -1,0 +1,327 @@
+<div class="history-container">
+  <div class="history-header">
+    <div class="header-content">
+      <h1><i class="fas fa-history"></i> Report History</h1>
+      <p>Track and manage your plagiarism detection history</p>
+    </div>
+    <div class="header-stats">
+      <div class="stat-item">
+        <span class="stat-number">{{ totalReports }}</span>
+        <span class="stat-label">Total Reports</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">{{ favoriteReports }}</span>
+        <span class="stat-label">Favorites</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">{{ thisMonthReports }}</span>
+        <span class="stat-label">This Month</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters and Controls -->
+  <div class="controls-section">
+    <div class="search-filters">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          placeholder="Search history..."
+          [(ngModel)]="searchTerm"
+          (input)="filterHistory()">
+      </div>
+
+      <div class="filter-controls">
+        <select [(ngModel)]="selectedPeriod" (change)="filterHistory()" class="filter-select">
+          <option value="">All Time</option>
+          <option value="today">Today</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+          <option value="year">This Year</option>
+        </select>
+
+        <select [(ngModel)]="selectedVerdict" (change)="filterHistory()" class="filter-select">
+          <option value="">All Verdicts</option>
+          <option value="HIGH">High Risk</option>
+          <option value="MID_HIGH">Mid-High Risk</option>
+          <option value="MID">Mid Risk</option>
+          <option value="MID_LOW">Mid-Low Risk</option>
+          <option value="LOW">Low Risk</option>
+        </select>
+
+        <div class="view-controls">
+          <button
+            class="view-btn"
+            [class.active]="viewMode === 'grid'"
+            (click)="viewMode = 'grid'">
+            <i class="fas fa-th"></i>
+          </button>
+          <button
+            class="view-btn"
+            [class.active]="viewMode === 'list'"
+            (click)="viewMode = 'list'">
+            <i class="fas fa-list"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-controls">
+      <button class="btn btn-secondary" (click)="exportHistory()">
+        <i class="fas fa-download"></i> Export
+      </button>
+      <button class="btn btn-outline" (click)="showArchived = !showArchived">
+        <i class="fas fa-archive"></i>
+        {{ showArchived ? 'Hide Archived' : 'Show Archived' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- History Content -->
+  <div class="history-content">
+    <!-- Grid View -->
+    <div class="history-grid" *ngIf="viewMode === 'grid' && filteredHistory && filteredHistory.length > 0">
+      <div class="history-card" *ngFor="let item of paginatedHistory"
+           [class.archived]="item.is_archived"
+           (click)="openReport(item.guid)">
+
+        <div class="card-header">
+          <div class="report-info">
+            <h3>{{ item.title }}</h3>
+            <div class="report-meta">
+              <span class="report-type">
+                <i [class]="getTypeIcon(item.check_type)"></i>
+                {{ item.check_type_display }}
+              </span>
+              <span class="report-date">{{ item.last_viewed | date:'MMM dd, yyyy' }}</span>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button class="action-btn favorite"
+                    [class.active]="item.is_favorite"
+                    (click)="toggleFavorite(item, $event)"
+                    title="Toggle Favorite">
+              <i [class]="item.is_favorite ? 'fas fa-heart' : 'far fa-heart'"></i>
+            </button>
+            <button class="action-btn"
+                    (click)="showOptionsMenu(item, $event)"
+                    title="More Options">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="card-content">
+          <div class="score-section">
+            <div class="score-display">
+              <app-accuracy-ring
+                [accuracy]="item.overall_score">
+              </app-accuracy-ring>
+              <div class="score-info">
+                <span class="score-value">{{ item.formatted_score }}</span>
+                <span class="verdict-badge" [class]="getVerdictClass(item.verdict)">
+                  {{ item.verdict_display }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="content-preview" *ngIf="item.suspicious_file_name || item.source_file_name">
+            <div class="file-info" *ngIf="item.suspicious_file_name">
+              <i class="fas fa-file-alt"></i>
+              <span>{{ item.suspicious_file_name }}</span>
+            </div>
+            <div class="file-info" *ngIf="item.source_file_name">
+              <i class="fas fa-file-text"></i>
+              <span>{{ item.source_file_name }}</span>
+            </div>
+          </div>
+
+          <div class="card-stats">
+            <div class="stat">
+              <i class="fas fa-eye"></i>
+              <span>{{ item.view_count }} views</span>
+            </div>
+            <div class="stat">
+              <i class="fas fa-clock"></i>
+              <span>{{ item.processing_time.toFixed(2) }}s</span>
+            </div>
+            <div class="stat">
+              <i class="fas fa-calendar"></i>
+              <span>{{ item.created | date:'MMM dd' }}</span>
+            </div>
+          </div>
+
+          <div class="tags-section" *ngIf="item.tags && item.tags.length > 0">
+            <span class="tag" *ngFor="let tag of item.tags.slice(0, 3)">{{ tag }}</span>
+            <span class="tag more" *ngIf="item.tags.length > 3">+{{ item.tags.length - 3 }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- List View -->
+    <div class="history-list" *ngIf="viewMode === 'list' && filteredHistory && filteredHistory.length > 0">
+      <div class="list-header">
+        <div class="header-cell title">Report</div>
+        <div class="header-cell type">Type</div>
+        <div class="header-cell score">Score</div>
+        <div class="header-cell verdict">Verdict</div>
+        <div class="header-cell date">Last Viewed</div>
+        <div class="header-cell views">Views</div>
+        <div class="header-cell actions">Actions</div>
+      </div>
+
+      <div class="list-item" *ngFor="let item of paginatedHistory"
+           [class.archived]="item.is_archived"
+           (click)="openReport(item.guid)">
+
+        <div class="list-cell title">
+          <div class="title-content">
+            <h4>{{ item.title }}</h4>
+            <div class="file-list" *ngIf="item.suspicious_file_name || item.source_file_name">
+              <span *ngIf="item.suspicious_file_name" class="file-name">
+                <i class="fas fa-file-alt"></i> {{ item.suspicious_file_name }}
+              </span>
+              <span *ngIf="item.source_file_name" class="file-name">
+                <i class="fas fa-file-text"></i> {{ item.source_file_name }}
+              </span>
+            </div>
+            <div class="tags" *ngIf="item.tags && item.tags.length > 0">
+              <span class="tag" *ngFor="let tag of item.tags.slice(0, 2)">{{ tag }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="list-cell type">
+          <span class="type-badge" [class]="'type-' + item.check_type">
+            <i [class]="getTypeIcon(item.check_type)"></i>
+            {{ item.check_type_display }}
+          </span>
+        </div>
+
+        <div class="list-cell score">
+          <div class="score-compact">
+            <span class="score-number">{{ item.formatted_score }}</span>
+            <div class="score-bar">
+              <div class="score-fill" [style.width.%]="item.overall_score"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="list-cell verdict">
+          <span class="verdict-badge" [class]="getVerdictClass(item.verdict)">
+            {{ item.verdict_display }}
+          </span>
+        </div>
+
+        <div class="list-cell date">
+          <span class="date-main">{{ item.last_viewed | date:'MMM dd, yyyy' }}</span>
+          <span class="date-time">{{ item.last_viewed | date:'HH:mm' }}</span>
+        </div>
+
+        <div class="list-cell views">
+          <span class="view-count">{{ item.view_count }}</span>
+        </div>
+
+        <div class="list-cell actions">
+          <button class="action-btn favorite"
+                  [class.active]="item.is_favorite"
+                  (click)="toggleFavorite(item, $event)"
+                  title="Toggle Favorite">
+            <i [class]="item.is_favorite ? 'fas fa-heart' : 'far fa-heart'"></i>
+          </button>
+          <button class="action-btn"
+                  (click)="downloadReport(item, $event)"
+                  title="Download">
+            <i class="fas fa-download"></i>
+          </button>
+          <button class="action-btn"
+                  (click)="showOptionsMenu(item, $event)"
+                  title="More Options">
+            <i class="fas fa-ellipsis-v"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!filteredHistory || filteredHistory.length === 0">
+      <div class="empty-icon">
+        <i class="fas fa-history"></i>
+      </div>
+      <h2>No History Found</h2>
+      <p *ngIf="searchTerm || selectedPeriod || selectedVerdict">
+        Try adjusting your filters or search terms.
+      </p>
+      <p *ngIf="!searchTerm && !selectedPeriod && !selectedVerdict && !showArchived">
+        Your report history will appear here as you create reports.
+      </p>
+      <button class="btn btn-primary" routerLink="/check">
+        <i class="fas fa-plus"></i> Create Your First Report
+      </button>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-section" *ngIf="filteredHistory && filteredHistory.length > 0">
+    <div class="pagination-info">
+      Showing {{ ((currentPage - 1) * pageSize) + 1 }} to {{ Math.min(currentPage * pageSize, totalItems) }} of {{ totalItems }} items
+    </div>
+    <div class="pagination-controls">
+      <button
+        class="page-btn"
+        [disabled]="currentPage === 1"
+        (click)="goToPage(currentPage - 1)">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+
+      <span class="page-numbers">
+        <button
+          *ngFor="let page of getPageNumbers()"
+          class="page-btn"
+          [class.active]="page === currentPage"
+          (click)="goToPage(page)">
+          {{ page }}
+        </button>
+      </span>
+
+      <button
+        class="page-btn"
+        [disabled]="currentPage === totalPages"
+        (click)="goToPage(currentPage + 1)">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Options Menu (shown when clicking ellipsis) -->
+<div class="options-menu" *ngIf="showOptionsMenuFor"
+     [style.top.px]="optionsMenuPosition.y"
+     [style.left.px]="optionsMenuPosition.x">
+  <button (click)="editTitle(showOptionsMenuFor)">
+    <i class="fas fa-edit"></i> Edit Title
+  </button>
+  <button (click)="manageTags(showOptionsMenuFor)">
+    <i class="fas fa-tags"></i> Manage Tags
+  </button>
+  <button (click)="duplicateReport(showOptionsMenuFor)">
+    <i class="fas fa-copy"></i> Duplicate
+  </button>
+  <button (click)="toggleArchive(showOptionsMenuFor)">
+    <i [class]="showOptionsMenuFor.is_archived ? 'fas fa-box-open' : 'fas fa-archive'"></i>
+    {{ showOptionsMenuFor.is_archived ? 'Unarchive' : 'Archive' }}
+  </button>
+  <button class="danger" (click)="deleteHistoryItem(showOptionsMenuFor)">
+    <i class="fas fa-trash"></i> Delete
+  </button>
+</div>
+
+<!-- Loading State -->
+<div class="loading-state" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>Loading history...</p>
+</div>
