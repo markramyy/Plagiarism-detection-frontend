@@ -1,263 +1,373 @@
+/* Modern Login Component with Sliding Animation */
+
 main {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Main Container */
 .box {
-    position: relative;
-    width: 850px;
-    height: 550px;
-    background: #fff;
-    border-radius: 30px;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
-    margin: 20px;
-    overflow: hidden;
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  height: 500px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  display: flex;
+  transition: all 0.6s ease-in-out;
 }
 
+/* Form Boxes */
 .form-box {
-    position: absolute;
-    right: 0;
-    width: 50%;
-    height: 100%;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    color: #333;
-    text-align: center;
-    padding: 40px;
-    z-index: 1;
-    transition: 0.6s ease-in-out 1.2s, visibility 0s 1s;
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px;
+  transition: all 0.6s ease-in-out;
 }
 
-.box.active .form-box {
-    right: 50%;
+.form-box.login {
+  left: 0;
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .form-box.register {
-    visibility: hidden;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateX(100%);
+}
+
+/* Toggle Animation Classes */
+.box.active .form-box.login {
+  transform: translateX(100%);
 }
 
 .box.active .form-box.register {
-    visibility: visible;
+  transform: translateX(0);
 }
 
-form {
-    width: 100%;
-}
-
-.box h1 {
-    font-size: 36px;
+/* Form Styling */
+.form-box h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
 .input-box {
-    margin: 30px 0;
-}
-
-.input-box input {
-    width: 100%;
-    padding: 13px 40px 13px 20px;
-    background: #eee;
-    border-radius: 8px;
-    border: none;
-    outline: none;
-    font-size: 16px;
-    color: #333;
-    font-weight: 500;
-}
-
-.input-box input::placeholder {
-    color: #888;
-    font-weight: 400;
-}
-
-.input-box fa-icon {
-    padding: 0 10px 0 0;
-    font-size: 20px;
-    color: #888;
+  margin-bottom: 1.5rem;
 }
 
 .input-field {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    background-color: #eee;
-    border-radius: 8px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #f8f9fa;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  transition: all 0.3s ease;
 }
 
+.input-field:focus-within {
+  border-color: #667eea;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.input-field input {
+  width: 100%;
+  padding: 15px 15px 15px 45px;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  color: #333;
+  outline: none;
+  border-radius: 12px;
+}
+
+.input-field input::placeholder {
+  color: #6c757d;
+}
+
+.input-field i {
+  position: absolute;
+  left: 15px;
+  color: #6c757d;
+  font-size: 1.1rem;
+  z-index: 2;
+}
+
+/* Error Messages */
 .error-message {
-    color: #dc3545;
-    text-align: left;
-    font-size: 15px;
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
+.alert {
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.alert-danger {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Buttons */
 .btn {
-    width: 100%;
-    height: 48px;
-    background: #117C70;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border: none;
-    font-size: 16px;
-    color: #fff;
-    font-weight: 600;
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  margin-top: 1rem;
 }
 
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Toggle Box */
 .toggle-box {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transition: all 0.6s ease-in-out;
 }
 
-.toggle-box::before {
-    content: '';
-    position: absolute;
-    left: -250%;
-    width: 300%;
-    height: 100%;
-    background: linear-gradient(0deg, #2c3e50, #117C70);
-    border-radius: 150px;
-    z-index: 2;
-    transition: 1.8s ease-in-out;
-}
-
-.box.active .toggle-box::before {
-    left: 50%;
+.box.active .toggle-box {
+  transform: translateX(-100%);
 }
 
 .toggle-panel {
-    position: absolute;
-    width: 50%;
-    height: 100%;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 2;
-    transition: 0.6s ease-in-out;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  color: white;
+  transition: all 0.6s ease-in-out;
 }
 
-.toggle-panel.toggle-left {
-    left: 0;
-    transition-delay: 1.2s;
+.toggle-left {
+  transform: translateX(0);
+  opacity: 1;
+  visibility: visible;
 }
 
-.box.active .toggle-panel.toggle-left {
-    left: -50%;
-    transition-delay: 0.6s;
+.toggle-right {
+  transform: translateX(0);
+  opacity: 0;
+  visibility: hidden;
 }
 
-.toggle-panel.toggle-right {
-    right: -50%;
-    transition-delay: 0.6s;
+.box.active .toggle-left {
+  transform: translateX(0);
+  opacity: 0;
+  visibility: hidden;
 }
 
-.box.active .toggle-panel.toggle-right {
-    right: 0;
-    transition-delay: 1.2s;
+.box.active .toggle-right {
+  transform: translateX(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.toggle-panel h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: white;
 }
 
 .toggle-panel p {
-    margin-bottom: 20px;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
 }
 
 .toggle-panel .btn {
-    width: 160px;
-    height: 46px;
-    background: transparent;
-    border: 2px solid #fff;
-    box-shadow: none;
+  background: transparent;
+  border: 2px solid white;
+  color: white;
+  width: auto;
+  padding: 12px 30px;
+  margin: 0;
 }
 
-.form-box.register {
-    overflow-y: auto;
-    padding: 20px 40px;
+.toggle-panel .btn:hover {
+  background: white;
+  color: #667eea;
+  transform: translateY(-2px);
 }
 
-.form-box.register form {
-    padding: 20px 0;
+/* Show/Hide Logic for Toggle Panels - Remove conflicting rules */
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .box {
+    max-width: 400px;
+    height: auto;
+    flex-direction: column;
+  }
+
+  .form-box {
+    position: static;
+    width: 100%;
+    height: auto;
+    padding: 30px;
+    transform: none !important;
+  }
+
+  .form-box.register {
+    display: none;
+  }
+
+  .box.active .form-box.login {
+    display: none;
+  }
+
+  .box.active .form-box.register {
+    display: flex;
+  }
+
+  .toggle-box {
+    position: static;
+    width: 100%;
+    height: 80px;
+    transform: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .toggle-panel {
+    position: static;
+    height: auto;
+    padding: 20px;
+    transform: none !important;
+  }
+
+  .toggle-left {
+    display: flex;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .toggle-right {
+    display: none;
+  }
+
+  .box.active .toggle-left {
+    display: none;
+  }
+
+  .box.active .toggle-right {
+    display: flex;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .toggle-panel h1 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .toggle-panel p {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
 }
 
-.form-box.register::-webkit-scrollbar {
-    width: 6px;
+@media (max-width: 480px) {
+  main {
+    padding: 10px;
+  }
+
+  .box {
+    border-radius: 15px;
+  }
+
+  .form-box {
+    padding: 20px;
+  }
+
+  .form-box h1 {
+    font-size: 1.5rem;
+  }
+
+  .toggle-panel {
+    padding: 15px;
+  }
 }
 
-.form-box.register::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
+/* Loading state */
+.btn.loading {
+  pointer-events: none;
 }
 
-.form-box.register::-webkit-scrollbar-thumb {
-    background: #117C70;
-    border-radius: 10px;
+.btn.loading::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 8px;
 }
 
-.form-box.register::-webkit-scrollbar-thumb:hover {
-    background: #0e6359;
-}
-
-@media screen and (max-width: 650px) {
-    .box {
-        height: calc(100vh - 40px);
-    }
-
-    .form-box {
-        bottom: 0;
-        width: 100%;
-        height: 70%;
-    }
-
-    .box.active .form-box {
-        right: 0;
-        bottom: 30%;
-    }
-
-    .toggle-box::before {
-        left: 0;
-        top: -270%;
-        width: 100%;
-        height: 300%;
-        border-radius: 20vw;
-    }
-
-    .box.active .toggle-box::before {
-        left: 0;
-        top: 70%;
-    }
-
-    .toggle-panel {
-        width: 100%;
-        height: 30%;
-    }
-
-    .toggle-panel.toggle-left {
-        top: 0;
-    }
-
-    .box.active .toggle-panel.toggle-left {
-        left: 0;
-        top: -30%;
-    }
-
-    .toggle-panel.toggle-right {
-        right: 0;
-        bottom: -30%;
-    }
-
-    .box.active .toggle-panel.toggle-right {
-        bottom: 0;
-    }
-
-}
-
-@media screen and (max-width: 400px) {
-    .form-box {
-        padding: 20px;
-    }
-
-    .toggle-panel h1 {
-        font-size: 30px;
-    }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

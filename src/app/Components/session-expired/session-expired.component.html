@@ -1,11 +1,30 @@
-<div class="session-dialog-overlay" *ngIf="showDialog">
-    <div class="session-dialog">
-      <div class="session-dialog-content">
-        <h3>Session Expired</h3>
-        <p>Your session has expired. Please log in again.</p>
-        <div class="session-dialog-actions">
-          <button class="btn btn-primary" (click)="close()">OK</button>
+<div class="session-overlay" *ngIf="showDialog">
+  <div class="session-modal">
+    <div class="modal-header">
+      <i class="fas fa-clock modal-icon"></i>
+      <h2>Session Expired</h2>
+    </div>
+
+    <div class="modal-content">
+      <p>Your session has expired for security reasons. Please sign in again to continue.</p>
+
+      <div class="session-info">
+        <div class="info-item">
+          <i class="fas fa-shield-alt"></i>
+          <span>Your data is secure</span>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-refresh"></i>
+          <span>Session timeout: 30 minutes</span>
         </div>
       </div>
     </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" (click)="close()">
+        <i class="fas fa-sign-in-alt"></i>
+        Sign In Again
+      </button>
+    </div>
+  </div>
 </div>

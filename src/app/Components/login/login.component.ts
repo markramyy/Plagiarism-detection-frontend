@@ -1,7 +1,6 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { faUser, faLock, faEnvelope, faIdCard } from '@fortawesome/free-solid-svg-icons';
 
 import { AuthService, ApiError } from '../../services/auth.service';
 
@@ -10,21 +9,16 @@ import { AuthService, ApiError } from '../../services/auth.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-
-export class LoginComponent {
-  faUser = faUser;
-  faLock = faLock;
-  faEnvelope = faEnvelope;
-  faIdCard = faIdCard;
+export class LoginComponent implements AfterViewInit {
+  @ViewChild('box') box!: ElementRef;
+  @ViewChild('registerBtn') registerBtn!: ElementRef;
+  @ViewChild('loginBtn') loginBtn!: ElementRef;
 
   loginForm: FormGroup;
   registerForm: FormGroup;
   loginError: string = '';
   registerErrors: { [key: string]: string } = {};
-
-  @ViewChild('box') box!: ElementRef;
-  @ViewChild('registerBtn') registerBtn!: ElementRef;
-  @ViewChild('loginBtn') loginBtn!: ElementRef;
+  showRegister: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -46,9 +40,46 @@ export class LoginComponent {
     });
   }
 
-  ngAfterViewInit() {
-    this.registerBtn.nativeElement.addEventListener('click', this.handleRegisterClick.bind(this));
-    this.loginBtn.nativeElement.addEventListener('click', this.handleLoginClick.bind(this));
+  ngAfterViewInit(): void {
+    // Set up toggle functionality
+    if (this.registerBtn && this.loginBtn) {
+      this.registerBtn.nativeElement.addEventListener('click', () => {
+        console.log('Register button clicked');
+        this.showRegisterForm();
+      });
+
+      this.loginBtn.nativeElement.addEventListener('click', () => {
+        console.log('Login button clicked');
+        this.showLoginForm();
+      });
+    }
+  }
+
+  showRegisterForm(): void {
+    console.log('Showing register form');
+    this.showRegister = true;
+    if (this.box) {
+      this.box.nativeElement.classList.add('active');
+    }
+    this.clearErrors();
+  }
+
+  showLoginForm(): void {
+    console.log('Showing login form');
+    this.showRegister = false;
+    if (this.box) {
+      this.box.nativeElement.classList.remove('active');
+    }
+    this.clearErrors();
+  }
+
+  toggleForm(event: Event): void {
+    event.preventDefault();
+    if (this.showRegister) {
+      this.showLoginForm();
+    } else {
+      this.showRegisterForm();
+    }
   }
 
   passwordMatchValidator(form: FormGroup) {
@@ -63,22 +94,12 @@ export class LoginComponent {
     return null;
   }
 
-  handleRegisterClick() {
-    this.box.nativeElement.classList.add('active');
-    this.resetErrors();
-  }
-
-  handleLoginClick() {
-    this.box.nativeElement.classList.remove('active');
-    this.resetErrors();
-  }
-
-  resetErrors() {
+  clearErrors(): void {
     this.loginError = '';
     this.registerErrors = {};
   }
 
-  onLogin() {
+  onLogin(): void {
     if (this.loginForm.valid) {
       const { username, password } = this.loginForm.value;
       this.authService.login(username, password).subscribe({
@@ -101,10 +122,10 @@ export class LoginComponent {
     }
   }
 
-  onRegister() {
+  onRegister(): void {
     if (this.registerForm.valid) {
       const registerData = this.registerForm.value;
-      this.resetErrors();
+      this.clearErrors();
 
       this.authService.register(registerData).subscribe({
         next: (response) => {
