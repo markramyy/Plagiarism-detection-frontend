@@ -2,90 +2,20 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 
-interface ComponentScore {
-  guid: string;
-  component_type: string;
-  component_display: string;
-  score: number;
-  formatted_score: string;
-  weight: number;
-}
-
-interface AnalysisInsight {
-  guid: string;
-  insight: string;
-  order: number;
-}
-
-interface Explanation {
-  guid: string;
-  explanation: string;
-  order: number;
-}
-
-interface ScoringDetail {
-  guid: string;
-  basic_calculation: string;
-  enhanced_score: string;
-  weights_used: string;
-  enhancement: string;
-  enhancement_reason: string;
-}
-
-interface FileDetail {
-  guid: string;
-  file: string;
-  file_type: string;
-  zip_folder: string | null;
-}
-
-interface ReportDetail {
-  guid: string;
-  check_type: string;
-  check_type_display: string;
-  verdict: string;
-  verdict_display: string;
-  overall_score: number;
-  formatted_score: string;
-  is_plagiarized: boolean;
-  is_high_risk: boolean;
-  confidence: number;
-  suspicious_text: string;
-  source_text: string;
-  processing_time: number;
-  notes: string | null;
-  created: string;
-  modified: string;
-  component_scores: ComponentScore[];
-  analysis_insights: AnalysisInsight[];
-  explanations: Explanation[];
-  matching_segments: any[];
-  scoring_details: ScoringDetail[];
-  suspicious_file_detail: FileDetail | null;
-  source_file_detail: FileDetail | null;
-}
-
-interface ReportDetailResponse {
-  message: string;
-  data: ReportDetail;
-}
-
 @Component({
   selector: 'app-report-detail',
   templateUrl: './report-detail.component.html',
   styleUrls: ['./report-detail.component.css']
 })
 export class ReportDetailComponent implements OnInit {
-  report: ReportDetail | null = null;
+  report: any = null;
   loading = false;
   error: string | null = null;
 
-  // UI state
+  // UI state properties
   comparisonView: 'side-by-side' | 'unified' = 'side-by-side';
   showTechnicalDetails = false;
   expandedSegments: boolean[] = [];
-
-  // Highlighted text
   highlightedSuspiciousText = '';
   highlightedSourceText = '';
 
@@ -106,143 +36,186 @@ export class ReportDetailComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    // Mock data based on real backend structure
+    // Mock data based on the provided sample response
     setTimeout(() => {
-      const mockResponse: ReportDetailResponse = {
-        message: "Report fetched successfully",
-        data: {
-          guid: reportId,
-          check_type: "text_to_file",
-          check_type_display: "Text to File",
-          verdict: "MID",
-          verdict_display: "MID plagiarism risk",
-          overall_score: 58.85,
-          formatted_score: "58.85%",
-          is_plagiarized: true,
-          is_high_risk: false,
-          confidence: 0.5885,
-          suspicious_text: "The Renaissance era represented a time of cultural, artistic, political and economic revival that began in Italy during the 14th century. It signified the shift from medieval times to the early modern period. During the Renaissance, there were developments in linear perspective for painting, progress in anatomical and astronomical studies, and the growth of humanist thinking.",
-          source_text: "Artificial Intelligence and Machine Learning\nArtificial intelligence (AI) is intelligence demonstrated by machines,\nas opposed to natural intelligence displayed by humans and animals.\nMachine learning is a subset of AI that focuses on the development of\nalgorithms that can learn and make predictions or decisions based on data.\nThe field has grown rapidly in recent years, with applications in\nhealthcare, finance, transportation, and many other domains.\nDeep learning, a subset of machine learning, has been particularly\nsuccessful in tasks such as image recognition and natural language processing.",
-          processing_time: 2.6709494590759277,
-          notes: null,
-          created: "2025-06-27T09:26:20.060472Z",
-          modified: "2025-06-27T09:26:20.060516Z",
-          component_scores: [
-            {
-              guid: "998d2c29-095a-4eab-9069-5dd738bec272",
-              component_type: "structural",
-              component_display: "Structural Similarity (LSTM1)",
-              score: 28.96,
-              formatted_score: "28.96%",
-              weight: 0.3
-            },
-            {
-              guid: "362699f4-c0fb-4868-ad7e-2e2ac80a9722",
-              component_type: "semantic",
-              component_display: "Semantic Similarity (LSTM2)",
-              score: 100,
-              formatted_score: "100.00%",
-              weight: 0.3
-            },
-            {
-              guid: "1fd656dc-24ff-4eaf-9c41-1c32104caafc",
-              component_type: "meaning",
-              component_display: "Meaning Similarity (BERT)",
-              score: 78.63,
-              formatted_score: "78.63%",
-              weight: 0.2
-            },
-            {
-              guid: "f65aa95d-d953-4972-852a-1d57b1460a9e",
-              component_type: "exact",
-              component_display: "Exact Similarity (TF-IDF)",
-              score: 22.21,
-              formatted_score: "22.21%",
-              weight: 0.2
-            },
-            {
-              guid: "7c72688f-df94-4905-a838-269d37b74bf0",
-              component_type: "basic_hybrid",
-              component_display: "Basic Hybrid Score",
-              score: 58.85,
-              formatted_score: "58.85%",
-              weight: 1
-            }
-          ],
-          analysis_insights: [
-            {
-              guid: "52d32f54-e695-41b8-a650-889c4eccac25",
-              insight: "Significant similarities found",
-              order: 0
-            },
-            {
-              guid: "4396c06d-f9c0-42aa-8877-56ad8b445273",
-              insight: "Minimal direct text copying",
-              order: 1
-            },
-            {
-              guid: "cd597173-fc92-40a5-9600-ae2c23376e03",
-              insight: "Similar ideas expressed differently",
-              order: 2
-            },
-            {
-              guid: "cd74d6fb-b6ea-45bb-a989-604f38cbf5ad",
-              insight: "Different writing structure",
-              order: 3
-            }
-          ],
-          explanations: [
-            {
-              guid: "5bb5aec7-578e-4202-aa48-4e987da81c8a",
-              explanation: "High similarity detected in: Sequential patterns: 100.0%",
-              order: 0
-            }
-          ],
-          matching_segments: [],
-          scoring_details: [
-            {
-              guid: "23877f86-60b6-46a2-a8e4-d22e23006b02",
-              basic_calculation: "Weighted average: 58.85%",
-              enhanced_score: "Enhanced score: 58.85%",
-              weights_used: "Structural: 30%, Sequential: 30%, Semantic: 20%, Exact: 20%",
-              enhancement: "No enhancement applied",
-              enhancement_reason: ""
-            }
-          ],
-          suspicious_file_detail: null,
-          source_file_detail: {
-            guid: "cae7f208-5b2b-4b3b-ae61-572fa8babd47",
-            file: "http://localhost:8000/uploads/sample_pdf.pdf",
-            file_type: "pdf",
-            zip_folder: null
+      this.report = {
+        guid: reportId,
+        check_type: "file_to_file",
+        check_type_display: "File to File",
+        verdict: "MID",
+        verdict_display: "MID plagiarism risk",
+        overall_score: 51.26,
+        formatted_score: "51.26%",
+        is_plagiarized: true,
+        is_high_risk: false,
+        confidence: 0.5126,
+        suspicious_text: "The Renaissance era represented a time of cultural, artistic, political and economic revival that began in Italy during the 14th century. It signified the shift from medieval times to the early modern period. During the Renaissance, there were developments in linear perspective for painting, progress in anatomical and astronomical studies, and the growth of humanist thinking.\n\nImportant Renaissance personalities included Leonardo da Vinci, Michelangelo, Raphael, and Donatello in the arts; Nicolaus Copernicus and Galileo Galilei in scientific fields; and Niccolò Machiavelli in political theory. The creation of the printing press by Johannes Gutenberg circa 1440 was essential for distributing Renaissance concepts across Europe.\n\nThe Renaissance focus on personal accomplishment and human capability stood in stark contrast to the medieval emphasis on religious dedication and group identity. This transformation established the foundation for the Scientific Revolution and Enlightenment periods that came later.",
+        source_text: "The Renaissance was a period of cultural, artistic, political and economic renewal beginning in Italy in the 14th century. It marked the transition from the medieval period to the early modern age. The Renaissance saw the development of linear perspective in painting, advances in anatomy and astronomy, and the flourishing of humanist philosophy.\n\nKey figures of the Renaissance include Leonardo da Vinci, Michelangelo, Raphael, and Donatello in art; Nicolaus Copernicus and Galileo Galilei in science; and Niccolò Machiavelli in political philosophy. The invention of the printing press by Johannes Gutenberg around 1440 was crucial in spreading Renaissance ideas throughout Europe.\n\nThe Renaissance emphasis on individual achievement and human potential contrasted sharply with the medieval focus on religious devotion and collective identity. This shift laid the groundwork for the Scientific Revolution and the Enlightenment that would follow.",
+        processing_time: 127.859867811203,
+        notes: null,
+        created: "2025-06-27T09:22:12.387401Z",
+        modified: "2025-06-27T09:22:12.387445Z",
+        component_scores: [
+          {
+            guid: "1e389b71-fd8a-442f-a8b9-d87ab2718349",
+            component_type: "structural",
+            component_display: "Structural Similarity (LSTM1)",
+            score: 42.66,
+            formatted_score: "42.66%",
+            weight: 0.3
+          },
+          {
+            guid: "34c281e8-834e-4bf4-bf94-9606d03330c5",
+            component_type: "semantic",
+            component_display: "Semantic Similarity (LSTM2)",
+            score: 6.7,
+            formatted_score: "6.70%",
+            weight: 0.3
+          },
+          {
+            guid: "80ab26df-58fc-4615-a0bb-5c46f3eb1853",
+            component_type: "meaning",
+            component_display: "Meaning Similarity (BERT)",
+            score: 99.29,
+            formatted_score: "99.29%",
+            weight: 0.2
+          },
+          {
+            guid: "1c0926b1-72aa-4e77-9250-71410cdd0906",
+            component_type: "exact",
+            component_display: "Exact Similarity (TF-IDF)",
+            score: 83,
+            formatted_score: "83.00%",
+            weight: 0.2
           }
+        ],
+        analysis_insights: [
+          {
+            guid: "66811232-e33d-4d9f-a48f-1868e057f038",
+            insight: "Significant similarities found",
+            order: 0
+          },
+          {
+            guid: "e6837e51-359f-4b54-a4ed-fa5dc28b5ec1",
+            insight: "High word-for-word similarity detected",
+            order: 1
+          },
+          {
+            guid: "6a8ac67a-60ea-4a71-a3c3-e136aa7a1182",
+            insight: "Ideas and meanings are essentially identical",
+            order: 2
+          }
+        ],
+        explanations: [
+          {
+            guid: "d28be3e1-c10a-4f84-a6db-11f451e93fff",
+            explanation: "High similarity detected in: Exact text similarity: 83.0%, Meaning similarity: 99.29%",
+            order: 0
+          },
+          {
+            guid: "a345475e-cdc0-48a5-a1d9-8f0cb1ad059b",
+            explanation: "Strongest match: 83.0% similarity found",
+            order: 1
+          }
+        ],
+        matching_segments: [
+          {
+            guid: "06753fa2-b8ac-4a81-88f2-e8e8e9045e9d",
+            source_segment: "The Renaissance was a period of cultural, artistic, political and economic renewal beginning in Italy in the 14th century.",
+            suspect_segment: "The Renaissance era represented a time of cultural, artistic, political and economic revival that began in Italy during the 14th century.",
+            similarity_score: 83,
+            formatted_similarity: "83.00%",
+            is_high_similarity: false,
+            position_source: 1,
+            position_suspect: 1
+          },
+          {
+            guid: "2765ac8c-4fc1-4f68-8c3e-01f492d079b2",
+            source_segment: "The invention of the printing press by Johannes Gutenberg around 1440 was crucial in spreading Renaissance ideas throughout Europe.",
+            suspect_segment: "The creation of the printing press by Johannes Gutenberg circa 1440 was essential for distributing Renaissance concepts across Europe.",
+            similarity_score: 76.05,
+            formatted_similarity: "76.05%",
+            is_high_similarity: false,
+            position_source: 5,
+            position_suspect: 5
+          }
+        ],
+        suspicious_file_detail: {
+          guid: "814aee91-4237-45cc-8d0e-20a0774993d6",
+          file: "http://localhost:8000/uploads/sample_suspicious.txt",
+          file_type: "txt",
+          zip_folder: null
+        },
+        source_file_detail: {
+          guid: "f5517714-cb90-4195-acda-26931aaeb284",
+          file: "http://localhost:8000/uploads/sample_source_Ts5EkVu.txt",
+          file_type: "txt",
+          zip_folder: null
         }
       };
 
-      this.report = mockResponse.data;
-      this.expandedSegments = new Array(this.report.matching_segments?.length || 0).fill(false);
-      this.processTextHighlighting();
+      this.highlightedSuspiciousText = this.report.suspicious_text;
+      this.highlightedSourceText = this.report.source_text;
+      this.expandedSegments = new Array(this.report.matching_segments.length).fill(false);
       this.loading = false;
     }, 500);
   }
 
-  processTextHighlighting(): void {
-    if (!this.report) return;
+  getVerdictClass(verdict: string): string {
+    const classes: { [key: string]: string } = {
+      'LOW': 'verdict-low',
+      'MID_LOW': 'verdict-mid-low',
+      'MID': 'verdict-mid',
+      'MID_HIGH': 'verdict-mid-high',
+      'HIGH': 'verdict-high'
+    };
+    return classes[verdict] || 'verdict-unknown';
+  }
 
-    // For now, just copy the text without highlighting
-    // In a real implementation, you'd highlight matching segments
-    this.highlightedSuspiciousText = this.report.suspicious_text;
-    this.highlightedSourceText = this.report.source_text;
+  getVerdictIcon(verdict?: string): string {
+    const v = verdict || (this.report ? this.report.verdict : '');
+    const icons: { [key: string]: string } = {
+      'LOW': 'fas fa-check-circle',
+      'MID_LOW': 'fas fa-info-circle',
+      'MID': 'fas fa-exclamation-triangle',
+      'MID_HIGH': 'fas fa-exclamation-triangle',
+      'HIGH': 'fas fa-times-circle'
+    };
+    return icons[v] || 'fas fa-info-circle';
+  }
+
+  getVerdictLabel(): string {
+    if (!this.report) return '';
+    const labels: { [key: string]: string } = {
+      'LOW': 'Low Risk',
+      'MID_LOW': 'Mid-Low Risk',
+      'MID': 'Mid Risk',
+      'MID_HIGH': 'Mid-High Risk',
+      'HIGH': 'High Risk'
+    };
+    return labels[this.report.verdict] || this.report.verdict_display || this.report.verdict;
+  }
+
+  getFileName(filePath: string): string {
+    if (!filePath) return '';
+    return filePath.split('/').pop() || filePath;
   }
 
   goBack(): void {
     this.location.back();
   }
 
+  downloadReport(): void {
+    console.log('Download report functionality');
+  }
+
+  shareReport(): void {
+    console.log('Share report functionality');
+  }
+
   getReportTitle(): string {
     if (!this.report) return '';
-    const date = new Date(this.report.created).toLocaleDateString();
-    return `${this.report.check_type_display} Report - ${date}`;
+    return `${this.report.check_type_display} Analysis Report`;
   }
 
   getTypeIcon(): string {
@@ -256,73 +229,41 @@ export class ReportDetailComponent implements OnInit {
   }
 
   getTypeLabel(): string {
-    return this.report?.check_type_display || '';
+    if (!this.report) return '';
+    return this.report.check_type_display || this.report.check_type;
   }
 
-  getVerdictIcon(): string {
-    if (!this.report) return 'fas fa-info-circle';
-    const icons: { [key: string]: string } = {
-      'LOW': 'fas fa-check-circle',
-      'MID_LOW': 'fas fa-info-circle',
-      'MID': 'fas fa-exclamation-triangle',
-      'MID_HIGH': 'fas fa-exclamation-triangle',
-      'HIGH': 'fas fa-times-circle'
-    };
-    return icons[this.report.verdict] || 'fas fa-info-circle';
-  }
-
-  getVerdictLabel(): string {
-    return this.report?.verdict_display || '';
-  }
-
-  getComponentName(componentType: string): string {
-    const names: { [key: string]: string } = {
-      'structural': 'Structural Analysis',
-      'semantic': 'Semantic Analysis',
-      'meaning': 'Meaning Analysis',
-      'exact': 'Exact Match',
-      'basic_hybrid': 'Hybrid Score'
-    };
-    return names[componentType] || componentType;
-  }
-
-  toggleSegment(index: number): void {
-    this.expandedSegments[index] = !this.expandedSegments[index];
-  }
-
-  downloadReport(): void {
-    // Implement download functionality
-    console.log('Downloading report:', this.report?.guid);
-  }
-
-  shareReport(): void {
-    // Implement share functionality
-    console.log('Sharing report:', this.report?.guid);
+  getScoreColorClass(score: number): string {
+    if (score < 20) return 'score-low';
+    if (score < 40) return 'score-mid-low';
+    if (score < 60) return 'score-mid';
+    if (score < 80) return 'score-mid-high';
+    return 'score-high';
   }
 
   highlightMatches(): void {
-    // Toggle text highlighting
-    this.processTextHighlighting();
+    console.log('Highlight matches functionality');
+  }
+
+  getSuspiciousWordCount(): number {
+    if (!this.report || !this.report.suspicious_text) return 0;
+    return this.report.suspicious_text.split(/\s+/).length;
+  }
+
+  getSourceWordCount(): number {
+    if (!this.report || !this.report.source_text) return 0;
+    return this.report.source_text.split(/\s+/).length;
   }
 
   copyToClipboard(text: string): void {
     navigator.clipboard.writeText(text).then(() => {
       console.log('Text copied to clipboard');
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
     });
   }
 
-  getSuspiciousWordCount(): number {
-    if (!this.report?.suspicious_text) return 0;
-    return this.report.suspicious_text.split(/\s+/).filter(word => word.length > 0).length;
-  }
-
-  getSourceWordCount(): number {
-    if (!this.report?.source_text) return 0;
-    return this.report.source_text.split(/\s+/).filter(word => word.length > 0).length;
-  }
-
-  getFileName(filePath: string): string {
-    if (!filePath) return '';
-    return filePath.split('/').pop() || filePath;
+  toggleSegment(index: number): void {
+    this.expandedSegments[index] = !this.expandedSegments[index];
   }
 }

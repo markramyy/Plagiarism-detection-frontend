@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 interface ComponentScore {
   guid: string;
@@ -82,7 +83,7 @@ export class ReportsComponent implements OnInit {
     { value: 'file_to_file', label: 'File to File' }
   ];
 
-  constructor() { }
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
     this.loadReports();
@@ -98,13 +99,13 @@ export class ReportsComponent implements OnInit {
         message: "Reports fetched successfully",
         data: [
           {
-            guid: "550e8400-e29b-41d4-a716-446655440001",
-            check_type: "text_to_file",
-            check_type_display: "Text to File",
+            guid: "3f236e44-b458-420b-b444-ee57334e8170",
+            check_type: "file_to_file",
+            check_type_display: "File to File",
             verdict: "MID",
             verdict_display: "MID plagiarism risk",
-            overall_score: 58.85,
-            formatted_score: "58.85%",
+            overall_score: 51.26,
+            formatted_score: "51.26%",
             is_plagiarized: true,
             is_high_risk: false,
             confidence: 0.5885,
@@ -347,7 +348,7 @@ export class ReportsComponent implements OnInit {
   viewReport(reportId: string): void {
     // Navigate to report detail page
     console.log('Viewing report:', reportId);
-    // this.router.navigate(['/reports', reportId]);
+    this.router.navigate(['/report', reportId]);
   }
 
   downloadReport(report: Report, event: Event): void {
