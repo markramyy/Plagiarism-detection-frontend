@@ -7,19 +7,19 @@ import { CommonModule } from '@angular/common';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HomeComponent } from './Components/home/home.component';
-import { NavbarComponent } from './Components/navbar/navbar.component';
-import { LoginComponent } from './Components/login/login.component';
+import { HomeComponent } from './components/home/home.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { LoginComponent } from './components/login/login.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
-import { SessionExpiredComponent } from './Components/session-expired/session-expired.component';
-import { ResultComponent } from './Components/result/result.component';
-import { AccuracyRingComponent } from './Components/accuracy-ring/accuracy-ring.component';
-import { SidebarComponent } from './Components/sidebar/sidebar.component';
-import { CheckComponent } from './Components/check/check.component';
-import { ProfileComponent } from './Components/profile/profile.component';
-import { ReportsComponent } from './Components/reports/reports.component';
-import { ReportDetailComponent } from './Components/report-detail/report-detail.component';
-import { HistoryComponent } from './Components/history/history.component';
+import { SessionExpiredComponent } from './components/session-expired/session-expired.component';
+import { ResultComponent } from './components/result/result.component';
+import { AccuracyRingComponent } from './components/accuracy-ring/accuracy-ring.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { CheckComponent } from './components/check/check.component';
+import { ProfileComponent } from './components/profile/profile.component';
+import { ReportsComponent } from './components/reports/reports.component';
+import { ReportDetailComponent } from './components/report-detail/report-detail.component';
+import { HistoryComponent } from './components/history/history.component';
 
 @NgModule({
   declarations: [

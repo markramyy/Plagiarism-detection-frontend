@@ -1,5 +1,5 @@
 import { Injectable, ComponentFactoryResolver, ApplicationRef, Injector, EmbeddedViewRef, ComponentRef } from '@angular/core';
-import { SessionExpiredComponent } from '../Components/session-expired/session-expired.component';
+import { SessionExpiredComponent } from '../components/session-expired/session-expired.component';
 
 @Injectable({
   providedIn: 'root'
