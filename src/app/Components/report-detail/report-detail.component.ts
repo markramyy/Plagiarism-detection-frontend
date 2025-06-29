@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { ReportsService, ReportDetail } from '../../services/reports.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-report-detail',
@@ -8,7 +10,7 @@ import { Location } from '@angular/common';
   styleUrls: ['./report-detail.component.css']
 })
 export class ReportDetailComponent implements OnInit {
-  report: any = null;
+  report: ReportDetail | null = null;
   loading = false;
   error: string | null = null;
 
@@ -22,7 +24,9 @@ export class ReportDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private location: Location
+    private location: Location,
+    private reportsService: ReportsService,
+    private toastService: ToastService
   ) { }
 
   ngOnInit(): void {
@@ -36,129 +40,76 @@ export class ReportDetailComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    // Mock data based on the provided sample response
-    setTimeout(() => {
-      this.report = {
-        guid: reportId,
-        check_type: "file_to_file",
-        check_type_display: "File to File",
-        verdict: "MID",
-        verdict_display: "MID plagiarism risk",
-        overall_score: 51.26,
-        formatted_score: "51.26%",
-        is_plagiarized: true,
-        is_high_risk: false,
-        confidence: 0.5126,
-        suspicious_text: "The Renaissance era represented a time of cultural, artistic, political and economic revival that began in Italy during the 14th century. It signified the shift from medieval times to the early modern period. During the Renaissance, there were developments in linear perspective for painting, progress in anatomical and astronomical studies, and the growth of humanist thinking.\n\nImportant Renaissance personalities included Leonardo da Vinci, Michelangelo, Raphael, and Donatello in the arts; Nicolaus Copernicus and Galileo Galilei in scientific fields; and Niccolò Machiavelli in political theory. The creation of the printing press by Johannes Gutenberg circa 1440 was essential for distributing Renaissance concepts across Europe.\n\nThe Renaissance focus on personal accomplishment and human capability stood in stark contrast to the medieval emphasis on religious dedication and group identity. This transformation established the foundation for the Scientific Revolution and Enlightenment periods that came later.",
-        source_text: "The Renaissance was a period of cultural, artistic, political and economic renewal beginning in Italy in the 14th century. It marked the transition from the medieval period to the early modern age. The Renaissance saw the development of linear perspective in painting, advances in anatomy and astronomy, and the flourishing of humanist philosophy.\n\nKey figures of the Renaissance include Leonardo da Vinci, Michelangelo, Raphael, and Donatello in art; Nicolaus Copernicus and Galileo Galilei in science; and Niccolò Machiavelli in political philosophy. The invention of the printing press by Johannes Gutenberg around 1440 was crucial in spreading Renaissance ideas throughout Europe.\n\nThe Renaissance emphasis on individual achievement and human potential contrasted sharply with the medieval focus on religious devotion and collective identity. This shift laid the groundwork for the Scientific Revolution and the Enlightenment that would follow.",
-        processing_time: 127.859867811203,
-        notes: null,
-        created: "2025-06-27T09:22:12.387401Z",
-        modified: "2025-06-27T09:22:12.387445Z",
-        component_scores: [
-          {
-            guid: "1e389b71-fd8a-442f-a8b9-d87ab2718349",
-            component_type: "structural",
-            component_display: "Structural Similarity (LSTM1)",
-            score: 42.66,
-            formatted_score: "42.66%",
-            weight: 0.3
-          },
-          {
-            guid: "34c281e8-834e-4bf4-bf94-9606d03330c5",
-            component_type: "semantic",
-            component_display: "Semantic Similarity (LSTM2)",
-            score: 6.7,
-            formatted_score: "6.70%",
-            weight: 0.3
-          },
-          {
-            guid: "80ab26df-58fc-4615-a0bb-5c46f3eb1853",
-            component_type: "meaning",
-            component_display: "Meaning Similarity (BERT)",
-            score: 99.29,
-            formatted_score: "99.29%",
-            weight: 0.2
-          },
-          {
-            guid: "1c0926b1-72aa-4e77-9250-71410cdd0906",
-            component_type: "exact",
-            component_display: "Exact Similarity (TF-IDF)",
-            score: 83,
-            formatted_score: "83.00%",
-            weight: 0.2
-          }
-        ],
-        analysis_insights: [
-          {
-            guid: "66811232-e33d-4d9f-a48f-1868e057f038",
-            insight: "Significant similarities found",
-            order: 0
-          },
-          {
-            guid: "e6837e51-359f-4b54-a4ed-fa5dc28b5ec1",
-            insight: "High word-for-word similarity detected",
-            order: 1
-          },
-          {
-            guid: "6a8ac67a-60ea-4a71-a3c3-e136aa7a1182",
-            insight: "Ideas and meanings are essentially identical",
-            order: 2
-          }
-        ],
-        explanations: [
-          {
-            guid: "d28be3e1-c10a-4f84-a6db-11f451e93fff",
-            explanation: "High similarity detected in: Exact text similarity: 83.0%, Meaning similarity: 99.29%",
-            order: 0
-          },
-          {
-            guid: "a345475e-cdc0-48a5-a1d9-8f0cb1ad059b",
-            explanation: "Strongest match: 83.0% similarity found",
-            order: 1
-          }
-        ],
-        matching_segments: [
-          {
-            guid: "06753fa2-b8ac-4a81-88f2-e8e8e9045e9d",
-            source_segment: "The Renaissance was a period of cultural, artistic, political and economic renewal beginning in Italy in the 14th century.",
-            suspect_segment: "The Renaissance era represented a time of cultural, artistic, political and economic revival that began in Italy during the 14th century.",
-            similarity_score: 83,
-            formatted_similarity: "83.00%",
-            is_high_similarity: false,
-            position_source: 1,
-            position_suspect: 1
-          },
-          {
-            guid: "2765ac8c-4fc1-4f68-8c3e-01f492d079b2",
-            source_segment: "The invention of the printing press by Johannes Gutenberg around 1440 was crucial in spreading Renaissance ideas throughout Europe.",
-            suspect_segment: "The creation of the printing press by Johannes Gutenberg circa 1440 was essential for distributing Renaissance concepts across Europe.",
-            similarity_score: 76.05,
-            formatted_similarity: "76.05%",
-            is_high_similarity: false,
-            position_source: 5,
-            position_suspect: 5
-          }
-        ],
-        suspicious_file_detail: {
-          guid: "814aee91-4237-45cc-8d0e-20a0774993d6",
-          file: "http://localhost:8000/uploads/sample_suspicious.txt",
-          file_type: "txt",
-          zip_folder: null
-        },
-        source_file_detail: {
-          guid: "f5517714-cb90-4195-acda-26931aaeb284",
-          file: "http://localhost:8000/uploads/sample_source_Ts5EkVu.txt",
-          file_type: "txt",
-          zip_folder: null
-        }
-      };
+    this.reportsService.getReportById(reportId).subscribe({
+      next: (response) => {
+        console.log('Report detail response:', response);
+        this.report = response.data;
+        this.initializeTextHighlighting();
+        this.expandedSegments = new Array(this.report.matching_segments?.length || 0).fill(false);
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error fetching report details:', error);
+        this.error = error.error?.message || 'Failed to load report details. Please try again.';
+        this.loading = false;
+        this.report = null;
+      }
+    });
+  }
 
-      this.highlightedSuspiciousText = this.report.suspicious_text;
-      this.highlightedSourceText = this.report.source_text;
-      this.expandedSegments = new Array(this.report.matching_segments.length).fill(false);
-      this.loading = false;
-    }, 500);
+  private initializeTextHighlighting(): void {
+    if (this.report) {
+      // For now, just assign the raw text - we can implement highlighting later
+      this.highlightedSuspiciousText = this.report.suspicious_text || '';
+      this.highlightedSourceText = this.report.source_text || '';
+
+      // TODO: Implement text highlighting based on matching segments
+      this.highlightMatchingSegments();
+    }
+  }
+
+  private highlightMatchingSegments(): void {
+    if (!this.report?.matching_segments) return;
+
+    // Create highlighted versions of the text
+    let suspiciousHighlighted = this.report.suspicious_text;
+    let sourceHighlighted = this.report.source_text;
+
+    // Apply highlighting to matching segments
+    this.report.matching_segments.forEach((segment, index) => {
+      const highlightClass = this.getSegmentHighlightClass(segment.similarity_score);
+
+      // Highlight suspect segment
+      if (segment.suspect_segment) {
+        const suspectRegex = new RegExp(this.escapeRegExp(segment.suspect_segment), 'gi');
+        suspiciousHighlighted = suspiciousHighlighted.replace(
+          suspectRegex,
+          `<span class="${highlightClass}" data-segment="${index}">${segment.suspect_segment}</span>`
+        );
+      }
+
+      // Highlight source segment
+      if (segment.source_segment) {
+        const sourceRegex = new RegExp(this.escapeRegExp(segment.source_segment), 'gi');
+        sourceHighlighted = sourceHighlighted.replace(
+          sourceRegex,
+          `<span class="${highlightClass}" data-segment="${index}">${segment.source_segment}</span>`
+        );
+      }
+    });
+
+    this.highlightedSuspiciousText = suspiciousHighlighted;
+    this.highlightedSourceText = sourceHighlighted;
+  }
+
+  private escapeRegExp(string: string): string {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  private getSegmentHighlightClass(similarity: number): string {
+    if (similarity >= 80) return 'highlight-high';
+    if (similarity >= 60) return 'highlight-medium';
+    return 'highlight-low';
   }
 
   getVerdictClass(verdict: string): string {
@@ -206,11 +157,50 @@ export class ReportDetailComponent implements OnInit {
   }
 
   downloadReport(): void {
-    console.log('Download report functionality');
+    if (!this.report) return;
+
+    this.reportsService.downloadReport(this.report.guid).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `report-${this.report!.guid}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.toastService.showSuccess('Report downloaded successfully!');
+      },
+      error: (error) => {
+        console.error('Error downloading report:', error);
+        this.toastService.showError('Failed to download report. Please try again.');
+      }
+    });
   }
 
   shareReport(): void {
-    console.log('Share report functionality');
+    if (!this.report) return;
+
+    const url = window.location.href;
+    if (navigator.share) {
+      navigator.share({
+        title: this.getReportTitle(),
+        text: `Plagiarism detection report - ${this.report.formatted_score} similarity`,
+        url: url
+      }).then(() => {
+        this.toastService.showSuccess('Report shared successfully!');
+      }).catch((error) => {
+        console.error('Error sharing report:', error);
+        this.fallbackShare(url);
+      });
+    } else {
+      this.fallbackShare(url);
+    }
+  }
+
+  private fallbackShare(url: string): void {
+    this.copyToClipboard(url);
+    this.toastService.showSuccess('Report URL copied to clipboard!');
   }
 
   getReportTitle(): string {
@@ -257,9 +247,10 @@ export class ReportDetailComponent implements OnInit {
 
   copyToClipboard(text: string): void {
     navigator.clipboard.writeText(text).then(() => {
-      console.log('Text copied to clipboard');
+      this.toastService.showSuccess('Text copied to clipboard!');
     }).catch(err => {
       console.error('Failed to copy text: ', err);
+      this.toastService.showError('Failed to copy text to clipboard.');
     });
   }
 

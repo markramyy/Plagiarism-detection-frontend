@@ -134,12 +134,37 @@
   <div class="segments-section" *ngIf="report.matching_segments && report.matching_segments.length > 0">
     <h2 class="section-title">Matching Segments ({{ report.matching_segments.length }})</h2>
     <div class="segments-list">
-      <div class="segment-item" *ngFor="let segment of report.matching_segments; let i = index">
-        <div class="segment-header">
+      <div class="segment-item" *ngFor="let segment of report.matching_segments; let i = index"
+           [class.expanded]="expandedSegments[i]">
+        <div class="segment-header" (click)="toggleSegment(i)">
           <h4 class="segment-title">Match {{ i + 1 }}</h4>
-          <span class="segment-score">{{ (segment.similarity_score || 0).toFixed(1) }}%</span>
+          <div class="segment-info">
+            <span class="segment-score" [class]="getScoreColorClass(segment.similarity_score)">
+              {{ segment.formatted_similarity || (segment.similarity_score + '%') }}
+            </span>
+            <i class="fas" [class.fa-chevron-down]="!expandedSegments[i]" [class.fa-chevron-up]="expandedSegments[i]"></i>
+          </div>
         </div>
-        <div class="segment-text">{{ segment.suspicious_text || 'No text available' }}</div>
+
+        <div class="segment-content" *ngIf="expandedSegments[i]">
+          <div class="segment-comparison">
+            <div class="segment-text suspect">
+              <h5>Suspect Text:</h5>
+              <p>{{ segment.suspect_segment || 'No text available' }}</p>
+            </div>
+            <div class="segment-text source">
+              <h5>Source Text:</h5>
+              <p>{{ segment.source_segment || 'No text available' }}</p>
+            </div>
+          </div>
+
+          <div class="segment-details" *ngIf="segment.analysis_data && segment.analysis_data.length > 0">
+            <h5>Analysis Data:</h5>
+            <ul>
+              <li *ngFor="let data of segment.analysis_data">{{ data }}</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   </div>
