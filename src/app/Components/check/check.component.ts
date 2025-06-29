@@ -19,6 +19,7 @@ import {
   faFileAlt
 } from '@fortawesome/free-solid-svg-icons';
 import { PlagiarismService } from '../../services/plagiarism.service';
+import { ToastService } from '../../services/toast.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -68,10 +69,16 @@ export class CheckComponent implements OnInit {
 
   // Loading state
   isLoading = false;
+  showLoadingModal = false;
+
+  // Analysis completion state
+  analysisCompleted = false;
+  analysisResult: any = null;
 
   constructor(
     private plagiarismService: PlagiarismService,
     private authService: AuthService,
+    private toastService: ToastService,
     private router: Router
   ) { }
 
@@ -79,6 +86,7 @@ export class CheckComponent implements OnInit {
     // Check if user is authenticated
     if (!this.authService.isLoggedIn()) {
       console.warn('User not logged in, redirecting to login page');
+      this.toastService.showError('Please login to access this feature', 'Authentication Required');
       this.router.navigate(['']);
     }
   }
@@ -142,12 +150,14 @@ export class CheckComponent implements OnInit {
   }
 
   checkForPlagiarism(): void {
+    this.resetAnalysisState(); // Reset previous analysis state
     this.isLoading = true;
+    this.showLoadingModal = true;
 
     if (!this.authService.isLoggedIn()) {
-      alert('Your session has expired. Please login again.');
+      this.toastService.showError('Your session has expired. Please login again.', 'Session Expired');
       this.router.navigate(['']);
-      this.isLoading = false;
+      this.resetLoadingState();
       return;
     }
 
@@ -157,23 +167,15 @@ export class CheckComponent implements OnInit {
           this.plagiarismService.checkTextToText(this.suspiciousText, this.sourceText)
             .subscribe({
               next: (result) => {
-                this.router.navigate(['/result'], { state: { result } });
-                this.isLoading = false;
+                this.handleSuccessResponse(result);
               },
               error: (error) => {
-                console.error('Error checking plagiarism:', error);
-                if (error.status === 401) {
-                  alert('Authentication failed. Please login again.');
-                  this.authService.logout();
-                } else {
-                  alert('Error checking plagiarism. Please try again.');
-                }
-                this.isLoading = false;
+                this.handleErrorResponse(error, 'text-to-text comparison');
               }
             });
         } else {
-          alert('Please enter both texts to compare.');
-          this.isLoading = false;
+          this.toastService.showWarning('Please enter both texts to compare.', 'Missing Input');
+          this.resetLoadingState();
         }
         break;
 
@@ -182,18 +184,15 @@ export class CheckComponent implements OnInit {
           this.plagiarismService.checkTextToFile(this.textToFileText, this.textToFileFile)
             .subscribe({
               next: (result) => {
-                this.router.navigate(['/result'], { state: { result } });
-                this.isLoading = false;
+                this.handleSuccessResponse(result);
               },
               error: (error) => {
-                console.error('Error checking plagiarism:', error);
-                alert('Error checking plagiarism. Please try again.');
-                this.isLoading = false;
+                this.handleErrorResponse(error, 'text-to-file comparison');
               }
             });
         } else {
-          alert('Please enter text and upload a file to compare.');
-          this.isLoading = false;
+          this.toastService.showWarning('Please enter text and upload a file to compare.', 'Missing Input');
+          this.resetLoadingState();
         }
         break;
 
@@ -202,21 +201,140 @@ export class CheckComponent implements OnInit {
           this.plagiarismService.checkFileToFile(this.firstFile, this.secondFile)
             .subscribe({
               next: (result) => {
-                this.router.navigate(['/result'], { state: { result } });
-                this.isLoading = false;
+                this.handleSuccessResponse(result);
               },
               error: (error) => {
-                console.error('Error checking plagiarism:', error);
-                alert('Error checking plagiarism. Please try again.');
-                this.isLoading = false;
+                this.handleErrorResponse(error, 'file-to-file comparison');
               }
             });
         } else {
-          alert('Please upload both files to compare.');
-          this.isLoading = false;
+          this.toastService.showWarning('Please upload both files to compare.', 'Missing Input');
+          this.resetLoadingState();
         }
         break;
     }
+  }  private handleSuccessResponse(result: any): void {
+    this.resetLoadingState();
+    this.toastService.showSuccess('Plagiarism analysis completed successfully!', 'Analysis Complete');
+
+    // Store the result and show completion state
+    this.analysisResult = result;
+    this.analysisCompleted = true;
+  }
+
+  private handleErrorResponse(error: any, operation: string): void {
+    this.resetLoadingState();
+    console.error(`Error in ${operation}:`, error);
+
+    let errorMessage = 'An unexpected error occurred. Please try again.';
+    let errorTitle = 'Analysis Failed';
+
+    if (error.status === 401) {
+      errorMessage = 'Authentication failed. Please login again.';
+      errorTitle = 'Authentication Error';
+      this.authService.logout();
+      this.router.navigate(['']);
+    } else if (error.status === 400) {
+      errorMessage = error.error?.error || 'Invalid input provided. Please check your data and try again.';
+      errorTitle = 'Invalid Input';
+    } else if (error.status === 413) {
+      errorMessage = 'File size too large. Please use smaller files.';
+      errorTitle = 'File Too Large';
+    } else if (error.status === 415) {
+      errorMessage = 'Unsupported file format. Please use PDF, DOCX, or TXT files.';
+      errorTitle = 'Unsupported Format';
+    } else if (error.status === 500) {
+      errorMessage = 'Server error occurred during analysis. Please try again later.';
+      errorTitle = 'Server Error';
+    } else if (error.status === 0) {
+      errorMessage = 'Unable to connect to server. Please check your internet connection.';
+      errorTitle = 'Connection Error';
+    } else if (error.error?.error) {
+      errorMessage = error.error.error;
+    }
+
+    this.toastService.showError(errorMessage, errorTitle, 10000);
+  }
+
+  private resetLoadingState(): void {
+    this.isLoading = false;
+    this.showLoadingModal = false;
+  }
+
+  private resetAnalysisState(): void {
+    this.analysisCompleted = false;
+    this.analysisResult = null;
+  }
+
+  // Analysis completion methods
+
+  goToReports(): void {
+    this.router.navigate(['/reports']);
+  }
+
+  startNewAnalysis(): void {
+    // Reset all states
+    this.resetAnalysisState();
+    this.resetLoadingState();
+
+    // Clear all inputs
+    this.clearTextInputs();
+    this.clearTextToFileInputs();
+    this.clearFileInputs();
+
+    // Reset to first tab
+    this.tabValue = 0;
+
+    this.toastService.showInfo('Ready for new analysis', 'New Analysis');
+  }
+
+  // Helper method to get analysis summary
+  get analysisSummary(): string {
+    if (!this.analysisResult?.plagiarism) return '';
+
+    const result = this.analysisResult.plagiarism;
+    const score = result.scores?.hybrid || result.detailed_results?.overall_score || 0;
+    return `${result.verdict} - ${score.toFixed(1)}% similarity detected`;
+  }
+
+  // Helper method to determine if plagiarism is detected based on verdict and score
+  get isPlagiarismDetected(): boolean {
+    if (!this.analysisResult?.plagiarism) return false;
+
+    const result = this.analysisResult.plagiarism;
+    const score = result.scores?.hybrid || result.detailed_results?.overall_score || 0;
+
+    // Consider plagiarism detected if:
+    // 1. Verdict indicates risk (MID, MID-HIGH, HIGH)
+    // 2. Or score is above 50%
+    const riskVerdict = result.verdict &&
+      (result.verdict.includes('MID') || result.verdict.includes('HIGH'));
+
+    return riskVerdict || score >= 50;
+  }
+
+  // Helper method to get confidence score from the hybrid score
+  get confidenceScore(): number {
+    if (!this.analysisResult?.plagiarism) return 0;
+
+    const result = this.analysisResult.plagiarism;
+    const score = result.scores?.hybrid || result.detailed_results?.overall_score || 0;
+
+    // Convert similarity score to confidence (as a decimal between 0-1)
+    return score / 100;
+  }
+
+  // Helper method to get detailed score breakdown
+  get scoreBreakdown(): string {
+    if (!this.analysisResult?.plagiarism?.scores) return '';
+
+    const scores = this.analysisResult.plagiarism.scores;
+    return `Structural: ${scores.lstm1?.toFixed(1) || 0}% | Semantic: ${scores.lstm2?.toFixed(1) || 0}% | Exact: ${scores.tfidf?.toFixed(1) || 0}%`;
+  }
+
+  // Helper method to get number of suspicious segments
+  get suspiciousSegmentsCount(): number {
+    return this.analysisResult?.plagiarism?.plagiarized_segments?.length || 0;
   }
 
   // Utility Methods
@@ -257,9 +375,10 @@ export class CheckComponent implements OnInit {
       } else {
         this.sourceText = text;
       }
+      this.toastService.showSuccess('Text pasted successfully', 'Clipboard');
     } catch (err) {
       console.error('Failed to read clipboard contents: ', err);
-      alert('Unable to paste from clipboard. Please try copying the text again.');
+      this.toastService.showError('Unable to paste from clipboard. Please try copying the text again.', 'Clipboard Error');
     }
   }
 
@@ -295,7 +414,7 @@ export class CheckComponent implements OnInit {
       const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
 
       if (!allowedTypes.includes(fileExtension)) {
-        alert('Please upload a valid file type (.txt, .doc, .docx, .pdf)');
+        this.toastService.showError('Please upload a valid file type (.txt, .doc, .docx, .pdf)', 'Invalid File Type');
         return;
       }
 

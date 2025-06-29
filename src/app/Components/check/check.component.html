@@ -1,4 +1,7 @@
 <div class="check-container">
+  <!-- Loading Modal -->
+  <app-loading-modal [isVisible]="showLoadingModal"></app-loading-modal>
+
   <!-- Page Header -->
   <div class="page-header">
     <div class="header-content">
@@ -36,7 +39,7 @@
   </div>
 
   <!-- Main Content -->
-  <div class="main-content">
+  <div class="main-content" *ngIf="!analysisCompleted">
     <!-- Text to Text Mode -->
     <div class="comparison-card" *ngIf="tabValue === 0">
       <div class="card-header">
@@ -298,6 +301,55 @@
             (click)="checkForPlagiarism()">
             <fa-icon [icon]="isLoading ? spinnerIcon : checkIcon" [class.fa-spin]="isLoading"></fa-icon>
             {{ isLoading ? 'Analyzing...' : 'Check for Plagiarism' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analysis Completion Section -->
+  <div class="analysis-completion" *ngIf="analysisCompleted">
+    <div class="completion-card">
+      <div class="completion-header">
+        <div class="success-icon">
+          <fa-icon [icon]="checkIcon" class="check-icon"></fa-icon>
+        </div>
+        <h2 class="completion-title">Analysis Complete!</h2>
+        <p class="completion-subtitle">Your plagiarism analysis has been successfully processed</p>
+      </div>
+
+      <div class="completion-content">
+        <div class="result-summary">
+          <h3>Quick Summary</h3>
+          <p class="summary-text">{{ analysisSummary }}</p>
+
+          <div class="score-breakdown">
+            <small class="breakdown-text">{{ scoreBreakdown }}</small>
+            <small class="segments-text" *ngIf="suspiciousSegmentsCount > 0">
+              {{ suspiciousSegmentsCount }} suspicious segment(s) detected
+            </small>
+          </div>
+
+          <div class="result-indicators">
+            <div class="indicator" [class.detected]="isPlagiarismDetected">
+              <fa-icon [icon]="isPlagiarismDetected ? suspiciousIcon : checkIcon"></fa-icon>
+              <span>{{ isPlagiarismDetected ? 'Plagiarism Detected' : 'No Plagiarism Detected' }}</span>
+            </div>
+            <div class="confidence-indicator">
+              <fa-icon [icon]="aiIcon"></fa-icon>
+              <span>{{ confidenceScore * 100 | number:'1.1-1' }}% Confidence</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn-primary" (click)="goToReports()">
+            <fa-icon [icon]="fileIcon"></fa-icon>
+            View Detailed Report
+          </button>
+          <button class="btn-secondary" (click)="startNewAnalysis()">
+            <fa-icon [icon]="uploadIcon"></fa-icon>
+            New Analysis
           </button>
         </div>
       </div>

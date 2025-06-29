@@ -4,17 +4,53 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environment';
 import { AuthService } from './auth.service';
 
-export interface PlagiarismResponse {
+export interface ComponentScores {
+  structural_similarity: number;
+  semantic_similarity: number;
+  meaning_similarity: number;
+  exact_similarity: number;
+}
 
-  message: string;
+export interface DetailedResults {
+  overall_score: number;
+  component_scores: ComponentScores;
+}
 
-  plagiarism: {
-    verdict: string;
-    confidence: number;
-    is_plagiarized: boolean;
-    similarity_score: number;
+export interface PlagiarismResult {
+  verdict: string;
+  scores: {
+    hybrid: number;
+    lstm1: number;
+    lstm2: number;
+    bert: number;
+    tfidf: number;
+    basic_hybrid?: number;
   };
-  
+  detailed_results: DetailedResults;
+  analysis?: string[];
+  explanation?: string[];
+  plagiarized_segments?: {
+    source_segment: string;
+    suspect_segment: string;
+    similarity: number;
+    position_source: number;
+    position_suspect: number;
+    analysis: string[];
+    highlighted_differences: any[];
+  }[];
+  scoring_details?: {
+    basic_calculation: string;
+    enhanced_score: string;
+    weights_used: string;
+    enhancement: string;
+    enhancement_reason: string;
+  };
+}
+
+export interface PlagiarismResponse {
+  message: string;
+  report_id: string;
+  plagiarism: PlagiarismResult;
 }
 
 @Injectable({

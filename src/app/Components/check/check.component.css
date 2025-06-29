@@ -403,17 +403,209 @@
   min-width: 200px;
 }
 
-/* FontAwesome Spin Animation */
-.fa-spin {
-  animation: fa-spin 2s infinite linear;
+/* Analysis Completion Styles */
+.analysis-completion {
+  min-height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
 }
 
-@keyframes fa-spin {
-  0% {
-    transform: rotate(0deg);
+.completion-card {
+  background: white;
+  border-radius: 20px;
+  padding: 3rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
+  animation: slideUp 0.5s ease-out;
+}
+
+.completion-header {
+  margin-bottom: 2.5rem;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  animation: bounce 0.6s ease-out;
+}
+
+.check-icon {
+  font-size: 2.5rem;
+  color: white;
+}
+
+.completion-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.completion-subtitle {
+  font-size: 1.1rem;
+  color: #6b7280;
+  margin-bottom: 0;
+}
+
+.completion-content {
+  text-align: left;
+}
+
+.result-summary {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.result-summary h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.summary-text {
+  font-size: 1.1rem;
+  color: #4b5563;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.result-indicators {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.indicator, .confidence-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.indicator {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.indicator.detected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.confidence-indicator {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.action-buttons .btn-primary,
+.action-buttons .btn-secondary {
+  flex: 1;
+  min-width: 180px;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.action-buttons .btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.action-buttons .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+.action-buttons .btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 2px solid #e5e7eb;
+}
+
+.action-buttons .btn-secondary:hover {
+  background: #e5e7eb;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Score Breakdown Styles */
+.score-breakdown {
+  margin: 1rem 0;
+  padding: 0.75rem;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.breakdown-text {
+  display: block;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.segments-text {
+  display: block;
+  color: #dc2626;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* Animations */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
-  100% {
-    transform: rotate(360deg);
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%, 43% {
+    transform: translate3d(0, -10px, 0);
+  }
+  70% {
+    transform: translate3d(0, -5px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
   }
 }
 
@@ -467,6 +659,28 @@
 
   .file-upload-zone.compact {
     min-height: 180px;
+  }
+
+  .completion-card {
+    padding: 2rem 1.5rem;
+    margin: 1rem;
+  }
+
+  .completion-title {
+    font-size: 1.5rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .action-buttons .btn-primary,
+  .action-buttons .btn-secondary {
+    min-width: auto;
+  }
+
+  .result-indicators {
+    flex-direction: column;
   }
 }
 
