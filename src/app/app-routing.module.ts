@@ -9,7 +9,6 @@ import { ReportDetailComponent } from './components/report-detail/report-detail.
 import { HistoryComponent } from './components/history/history.component';
 import { AuthGuard } from './guards/auth.guard';
 import { LoginGuard } from './guards/login.guard';
-import { ResultComponent } from './components/result/result.component';
 
 const routes: Routes = [
   { path: '', component: LoginComponent, canActivate: [LoginGuard] },
@@ -19,7 +18,6 @@ const routes: Routes = [
   { path: 'reports', component: ReportsComponent, canActivate: [AuthGuard] },
   { path: 'report/:id', component: ReportDetailComponent, canActivate: [AuthGuard] },
   { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
-  { path: 'result', component: ResultComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 

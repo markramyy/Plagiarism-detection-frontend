@@ -1,0 +1,53 @@
+<div class="loading-modal-overlay" *ngIf="isVisible" (click)="$event.stopPropagation()">
+  <div class="loading-modal">
+    <div class="loading-content">
+      <!-- Header -->
+      <div class="loading-header">
+        <div class="loading-icon-container">
+          <fa-icon [icon]="robotIcon" class="robot-icon"></fa-icon>
+          <fa-icon [icon]="spinnerIcon" class="spinner-icon fa-spin"></fa-icon>
+        </div>
+        <h3 class="loading-title">AI Plagiarism Analysis</h3>
+        <p class="loading-subtitle">Analyzing your content with advanced AI algorithms</p>
+      </div>
+
+      <!-- Progress Animation -->
+      <div class="progress-section">
+        <div class="progress-circle">
+          <div class="progress-inner">
+            <fa-icon [icon]="cogIcon" class="progress-cog fa-spin"></fa-icon>
+          </div>
+        </div>
+
+        <!-- Stage Text -->
+        <div class="stage-text">
+          <p class="current-stage">{{ currentStageText }}</p>
+        </div>
+      </div>
+
+      <!-- Features Grid -->
+      <div class="features-grid">
+        <div class="feature-item">
+          <fa-icon [icon]="robotIcon" class="feature-icon"></fa-icon>
+          <span>Semantic Analysis</span>
+        </div>
+        <div class="feature-item">
+          <fa-icon [icon]="cogIcon" class="feature-icon"></fa-icon>
+          <span>Pattern Recognition</span>
+        </div>
+        <div class="feature-item">
+          <fa-icon [icon]="checkIcon" class="feature-icon"></fa-icon>
+          <span>Deep Learning</span>
+        </div>
+      </div>
+
+      <!-- Loading Bar -->
+      <div class="loading-bar-container">
+        <div class="loading-bar">
+          <div class="loading-progress"></div>
+        </div>
+        <small class="loading-note">This may take a few moments depending on content length</small>
+      </div>
+    </div>
+  </div>
+</div>
