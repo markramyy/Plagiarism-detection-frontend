@@ -1,55 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-
-interface ComponentScore {
-  guid: string;
-  component_type: string;
-  component_display: string;
-  score: number;
-  formatted_score: string;
-  weight: number;
-}
-
-interface HistoryReport {
-  guid: string;
-  title: string;
-  check_type: string;
-  check_type_display: string;
-  verdict: string;
-  verdict_display: string;
-  overall_score: number;
-  formatted_score: string;
-  is_plagiarized: boolean;
-  is_high_risk: boolean;
-  confidence: number;
-  word_count: number;
-  character_count: number;
-  processing_time: number;
-  created: string;
-  modified: string;
-  component_scores: ComponentScore[];
-  suspicious_file_name?: string;
-  source_file_name?: string;
-  metadata: {
-    user_id?: string;
-    session_id?: string;
-    ip_address?: string;
-    user_agent?: string;
-  };
-  // Additional properties for history UI
-  is_archived?: boolean;
-  is_favorite?: boolean;
-  last_viewed?: string;
-  view_count?: number;
-  tags?: string[];
-}
-
-interface HistoryResponse {
-  message: string;
-  data: HistoryReport[];
-  total_count: number;
-  page: number;
-  page_size: number;
-}
+import { Router } from '@angular/router';
+import { HistoryService, HistoryItem, UserStatistics } from '../../services/history.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-history',
@@ -57,43 +9,39 @@ interface HistoryResponse {
   styleUrls: ['./history.component.css']
 })
 export class HistoryComponent implements OnInit {
-  reports: HistoryReport[] = [];
-  filteredReports: HistoryReport[] = [];
+  historyItems: HistoryItem[] = [];
+  filteredHistory: HistoryItem[] = [];
+  paginatedHistory: HistoryItem[] = [];
   loading = false;
   error: string | null = null;
+
+  // Statistics
+  statistics: UserStatistics | null = null;
+  favoriteReports = 0;
+  thisMonthReports = 0;
+  totalReports = 0;
 
   // Filters
   searchTerm = '';
   selectedVerdict = '';
   selectedCheckType = '';
-  dateFilter = '';
-  startDate = '';
-  endDate = '';
   selectedPeriod = '';
+  showArchived = false;
 
   // Sorting
-  sortBy = 'created';
+  sortBy = 'last_viewed';
   sortDirection: 'asc' | 'desc' = 'desc';
 
   // Pagination
   currentPage = 1;
   pageSize = 20;
-  totalReports = 0;
+  totalItems = 0;
   totalPages = 0;
 
   // UI
   selectedReports: string[] = [];
-  showFilters = false;
   viewMode: 'grid' | 'list' = 'grid';
-  showArchived = false;
-
-  // Additional properties for history view
-  filteredHistory: HistoryReport[] = [];
-  paginatedHistory: HistoryReport[] = [];
-  favoriteReports = 0;
-  thisMonthReports = 0;
-  totalItems = 0;
-  showOptionsMenuFor: HistoryReport | null = null;
+  showOptionsMenuFor: HistoryItem | null = null;
   optionsMenuPosition = { x: 0, y: 0 };
 
   verdictOptions = [
@@ -112,275 +60,183 @@ export class HistoryComponent implements OnInit {
     { value: 'file_to_file', label: 'File to File' }
   ];
 
-  constructor() { }
+  constructor(
+    private historyService: HistoryService,
+    private toastService: ToastService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.loadHistory();
+    this.loadStatistics();
   }
 
   loadHistory(): void {
     this.loading = true;
     this.error = null;
 
-    // Mock data based on real backend structure
-    setTimeout(() => {
-      const mockResponse: HistoryResponse = {
-        message: "History fetched successfully",
-        data: [
-          {
-            guid: "hist-550e8400-e29b-41d4-a716-446655440001",
-            title: "Academic Paper Analysis - Renaissance Art",
-            check_type: "text_to_file",
-            check_type_display: "Text to File",
-            verdict: "MID",
-            verdict_display: "MID plagiarism risk",
-            overall_score: 58.85,
-            formatted_score: "58.85%",
-            is_plagiarized: true,
-            is_high_risk: false,
-            confidence: 0.5885,
-            word_count: 1247,
-            character_count: 7845,
-            processing_time: 2.67,
-            created: "2025-06-27T09:26:20.060472Z",
-            modified: "2025-06-27T09:26:20.060516Z",
-            component_scores: [
-              {
-                guid: "998d2c29-095a-4eab-9069-5dd738bec272",
-                component_type: "structural",
-                component_display: "Structural Similarity (LSTM1)",
-                score: 28.96,
-                formatted_score: "28.96%",
-                weight: 0.3
-              }
-            ],
-            suspicious_file_name: "renaissance_essay.txt",
-            source_file_name: "art_history_reference.pdf",
-            metadata: {
-              user_id: "user123",
-              session_id: "sess_456",
-              ip_address: "192.168.1.100",
-              user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            },
-            is_archived: false,
-            is_favorite: true,
-            last_viewed: "2025-06-27T15:30:00.000000Z",
-            view_count: 3,
-            tags: ["academic", "renaissance", "art-history"]
-          },
-          {
-            guid: "hist-550e8400-e29b-41d4-a716-446655440002",
-            title: "Literature Review - Machine Learning Applications",
-            check_type: "file_to_file",
-            check_type_display: "File to File",
-            verdict: "HIGH",
-            verdict_display: "HIGH plagiarism risk",
-            overall_score: 87.45,
-            formatted_score: "87.45%",
-            is_plagiarized: true,
-            is_high_risk: true,
-            confidence: 0.8745,
-            word_count: 3456,
-            character_count: 21890,
-            processing_time: 5.23,
-            created: "2025-06-26T14:15:30.000000Z",
-            modified: "2025-06-26T14:15:30.000000Z",
-            component_scores: [
-              {
-                guid: "998d2c29-095a-4eab-9069-5dd738bec273",
-                component_type: "structural",
-                component_display: "Structural Similarity (LSTM1)",
-                score: 85.32,
-                formatted_score: "85.32%",
-                weight: 0.3
-              }
-            ],
-            suspicious_file_name: "ml_literature_review.docx",
-            source_file_name: "ieee_ml_paper.pdf",
-            metadata: {
-              user_id: "user123",
-              session_id: "sess_789",
-              ip_address: "192.168.1.100",
-              user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            },
-            is_archived: false,
-            is_favorite: false,
-            last_viewed: "2025-06-26T18:45:00.000000Z",
-            view_count: 7,
-            tags: ["machine-learning", "literature-review", "ieee"]
-          },
-          {
-            guid: "hist-550e8400-e29b-41d4-a716-446655440003",
-            title: "Short Essay - Climate Change Effects",
-            check_type: "text_to_text",
-            check_type_display: "Text to Text",
-            verdict: "LOW",
-            verdict_display: "LOW plagiarism risk",
-            overall_score: 15.23,
-            formatted_score: "15.23%",
-            is_plagiarized: false,
-            is_high_risk: false,
-            confidence: 0.1523,
-            word_count: 567,
-            character_count: 3421,
-            processing_time: 1.45,
-            created: "2025-06-25T10:30:45.000000Z",
-            modified: "2025-06-25T10:30:45.000000Z",
-            component_scores: [
-              {
-                guid: "998d2c29-095a-4eab-9069-5dd738bec274",
-                component_type: "structural",
-                component_display: "Structural Similarity (LSTM1)",
-                score: 12.45,
-                formatted_score: "12.45%",
-                weight: 0.3
-              }
-            ],
-            suspicious_file_name: "climate_essay.txt",
-            source_file_name: "climate_reference.txt",
-            metadata: {
-              user_id: "user123",
-              session_id: "sess_012",
-              ip_address: "192.168.1.100",
-              user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            },
-            is_archived: false,
-            is_favorite: false,
-            last_viewed: "2025-06-25T12:15:00.000000Z",
-            view_count: 2,
-            tags: ["climate", "environment", "essay"]
-          },
-          {
-            guid: "hist-550e8400-e29b-41d4-a716-446655440004",
-            title: "Research Proposal - Quantum Computing",
-            check_type: "file_to_file",
-            check_type_display: "File to File",
-            verdict: "MID_HIGH",
-            verdict_display: "MID-HIGH plagiarism risk",
-            overall_score: 72.16,
-            formatted_score: "72.16%",
-            is_plagiarized: true,
-            is_high_risk: true,
-            confidence: 0.7216,
-            word_count: 2890,
-            character_count: 18765,
-            processing_time: 4.12,
-            created: "2025-06-24T16:45:22.000000Z",
-            modified: "2025-06-24T16:45:22.000000Z",
-            component_scores: [
-              {
-                guid: "998d2c29-095a-4eab-9069-5dd738bec275",
-                component_type: "structural",
-                component_display: "Structural Similarity (LSTM1)",
-                score: 68.92,
-                formatted_score: "68.92%",
-                weight: 0.3
-              }
-            ],
-            suspicious_file_name: "quantum_proposal.pdf",
-            source_file_name: "quantum_research_papers.pdf",
-            metadata: {
-              user_id: "user123",
-              session_id: "sess_345",
-              ip_address: "192.168.1.100",
-              user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            }
-          }
-        ],
-        total_count: 4,
-        page: 1,
-        page_size: 20
-      };
+    const filters: any = {};
+    if (this.showArchived !== undefined) {
+      filters.is_archived = this.showArchived;
+    }
 
-      this.reports = mockResponse.data;
-      this.totalReports = mockResponse.total_count;
-      this.totalPages = Math.ceil(this.totalReports / this.pageSize);
-      this.totalItems = this.totalReports;
-
-      // Initialize additional stats
-      this.favoriteReports = 2; // Mock favorite count
-      this.thisMonthReports = this.reports.filter(r => {
-        const reportDate = new Date(r.created);
-        const now = new Date();
-        return reportDate.getMonth() === now.getMonth() && reportDate.getFullYear() === now.getFullYear();
-      }).length;
-
-      this.filteredHistory = [...this.reports];
-      this.filterHistory();
-      this.loading = false;
-    }, 500);
+    this.historyService.getHistory(this.currentPage, this.pageSize, filters).subscribe({
+      next: (response) => {
+        console.log('History response:', response);
+        this.historyItems = response.results || [];
+        this.totalItems = response.count || 0;
+        this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+        this.applyFilters();
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading history:', error);
+        this.error = error.error?.message || 'Failed to load history. Please try again.';
+        this.loading = false;
+        this.toastService.showError('Failed to load history');
+      }
+    });
   }
 
-  filterReports(): void {
-    this.filteredReports = this.reports.filter(report => {
-      const matchesSearch = !this.searchTerm ||
-        report.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        report.suspicious_file_name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        report.source_file_name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        report.check_type_display.toLowerCase().includes(this.searchTerm.toLowerCase());
+  loadStatistics(): void {
+    this.historyService.getUserStatistics().subscribe({
+      next: (response) => {
+        this.statistics = response.data;
+        this.totalReports = this.statistics.total_reports;
+        this.favoriteReports = this.statistics.favorite_count;
+        // Calculate this month reports (you might want to add this to backend)
+        this.thisMonthReports = Math.floor(this.totalReports * 0.3); // Mock calculation
+      },
+      error: (error) => {
+        console.error('Error loading statistics:', error);
+      }
+    });
+  }
 
-      const matchesVerdict = !this.selectedVerdict || report.verdict === this.selectedVerdict;
-      const matchesCheckType = !this.selectedCheckType || report.check_type === this.selectedCheckType;
+  applyFilters(): void {
+    this.filteredHistory = this.historyItems.filter(item => {
+      // Search term filter
+      if (this.searchTerm) {
+        const searchLower = this.searchTerm.toLowerCase();
+        const matchesTitle = item.title.toLowerCase().includes(searchLower);
+        const matchesTags = item.tags.some(tag => tag.toLowerCase().includes(searchLower));
+        const matchesVerdict = item.report_summary.verdict_display.toLowerCase().includes(searchLower);
 
-      let matchesDate = true;
-      if (this.startDate || this.endDate) {
-        const reportDate = new Date(report.created);
-        if (this.startDate && this.endDate) {
-          const start = new Date(this.startDate);
-          const end = new Date(this.endDate);
-          matchesDate = reportDate >= start && reportDate <= end;
-        } else if (this.startDate) {
-          matchesDate = reportDate >= new Date(this.startDate);
-        } else if (this.endDate) {
-          matchesDate = reportDate <= new Date(this.endDate);
+        if (!matchesTitle && !matchesTags && !matchesVerdict) {
+          return false;
         }
       }
 
-      return matchesSearch && matchesVerdict && matchesCheckType && matchesDate;
-    });
-
-    this.sortReports();
-  }
-
-  sortReports(): void {
-    this.filteredReports.sort((a, b) => {
-      let comparison = 0;
-
-      switch (this.sortBy) {
-        case 'created':
-          comparison = new Date(a.created).getTime() - new Date(b.created).getTime();
-          break;
-        case 'title':
-          comparison = a.title.localeCompare(b.title);
-          break;
-        case 'score':
-          comparison = a.overall_score - b.overall_score;
-          break;
-        case 'verdict':
-          comparison = a.verdict.localeCompare(b.verdict);
-          break;
-        case 'type':
-          comparison = a.check_type.localeCompare(b.check_type);
-          break;
-        case 'word_count':
-          comparison = a.word_count - b.word_count;
-          break;
-        default:
-          comparison = 0;
+      // Verdict filter
+      if (this.selectedVerdict && item.report_summary.verdict !== this.selectedVerdict) {
+        return false;
       }
 
-      return this.sortDirection === 'asc' ? comparison : -comparison;
+      // Check type filter
+      if (this.selectedCheckType && item.report_summary.check_type !== this.selectedCheckType) {
+        return false;
+      }
+
+      // Period filter
+      if (this.selectedPeriod) {
+        const itemDate = new Date(item.last_viewed);
+        const now = new Date();
+
+        switch (this.selectedPeriod) {
+          case 'today':
+            if (itemDate.toDateString() !== now.toDateString()) return false;
+            break;
+          case 'week':
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            if (itemDate < weekAgo) return false;
+            break;
+          case 'month':
+            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            if (itemDate < monthAgo) return false;
+            break;
+          case 'year':
+            const yearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+            if (itemDate < yearAgo) return false;
+            break;
+        }
+      }
+
+      return true;
+    });
+
+    this.applySorting();
+    this.updatePagination();
+  }
+
+  applySorting(): void {
+    this.filteredHistory.sort((a, b) => {
+      let aVal: any;
+      let bVal: any;
+
+      switch (this.sortBy) {
+        case 'title':
+          aVal = a.title;
+          bVal = b.title;
+          break;
+        case 'last_viewed':
+          aVal = new Date(a.last_viewed);
+          bVal = new Date(b.last_viewed);
+          break;
+        case 'created':
+          aVal = new Date(a.created);
+          bVal = new Date(b.created);
+          break;
+        case 'score':
+          aVal = a.report_summary.overall_score;
+          bVal = b.report_summary.overall_score;
+          break;
+        case 'verdict':
+          aVal = a.report_summary.verdict;
+          bVal = b.report_summary.verdict;
+          break;
+        case 'view_count':
+          aVal = a.view_count;
+          bVal = b.view_count;
+          break;
+        default:
+          aVal = new Date(a.last_viewed);
+          bVal = new Date(b.last_viewed);
+      }
+
+      if (aVal < bVal) return this.sortDirection === 'asc' ? -1 : 1;
+      if (aVal > bVal) return this.sortDirection === 'asc' ? 1 : -1;
+      return 0;
     });
   }
 
-  onSearchChange(): void {
-    this.filterReports();
+  updatePagination(): void {
+    this.totalItems = this.filteredHistory.length;
+    this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = Math.max(1, this.totalPages);
+    }
+
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedHistory = this.filteredHistory.slice(startIndex, endIndex);
   }
 
-  onFilterChange(): void {
-    this.filterReports();
+  // Filter methods
+  filterHistory(): void {
+    this.currentPage = 1; // Reset to first page when filtering
+    this.applyFilters();
   }
 
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.selectedVerdict = '';
+    this.selectedCheckType = '';
+    this.selectedPeriod = '';
+    this.filterHistory();
+  }
+
+  // Sorting methods
   toggleSort(field: string): void {
     if (this.sortBy === field) {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
@@ -388,56 +244,211 @@ export class HistoryComponent implements OnInit {
       this.sortBy = field;
       this.sortDirection = 'desc';
     }
-    this.sortReports();
+    this.applySorting();
+    this.updatePagination();
   }
 
-  clearFilters(): void {
-    this.searchTerm = '';
-    this.selectedVerdict = '';
-    this.selectedCheckType = '';
-    this.dateFilter = '';
-    this.startDate = '';
-    this.endDate = '';
-    this.filterReports();
-  }
-
-  toggleReportSelection(reportId: string): void {
-    const index = this.selectedReports.indexOf(reportId);
-    if (index > -1) {
-      this.selectedReports.splice(index, 1);
-    } else {
-      this.selectedReports.push(reportId);
+  // Pagination methods
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
     }
   }
 
-  selectAllReports(): void {
-    if (this.selectedReports.length === this.filteredReports.length) {
-      this.selectedReports = [];
-    } else {
-      this.selectedReports = this.filteredReports.map(r => r.guid);
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxPages = 5;
+    const startPage = Math.max(1, this.currentPage - Math.floor(maxPages / 2));
+    const endPage = Math.min(this.totalPages, startPage + maxPages - 1);
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  // Action methods
+  openReport(reportId: string): void {
+    // Extract the actual report GUID from the history item
+    const historyItem = this.historyItems.find(item => item.guid === reportId);
+    if (historyItem) {
+      this.router.navigate(['/reports', historyItem.report_summary.guid]);
     }
   }
 
-  deleteSelectedReports(): void {
-    if (this.selectedReports.length === 0) return;
+  toggleFavorite(item: HistoryItem, event: Event): void {
+    event.stopPropagation();
 
-    const count = this.selectedReports.length;
-    if (confirm(`Are you sure you want to delete ${count} selected report(s)?`)) {
-      console.log('Deleting reports:', this.selectedReports);
-      // Implement bulk delete functionality
-      this.reports = this.reports.filter(r => !this.selectedReports.includes(r.guid));
-      this.selectedReports = [];
-      this.filterReports();
+    this.historyService.toggleFavorite(item.guid).subscribe({
+      next: (response) => {
+        item.is_favorite = response.data.is_favorite;
+        this.toastService.showSuccess(
+          item.is_favorite ? 'Added to favorites' : 'Removed from favorites'
+        );
+        this.loadStatistics(); // Refresh stats
+      },
+      error: (error) => {
+        console.error('Error toggling favorite:', error);
+        this.toastService.showError('Failed to update favorite status');
+      }
+    });
+  }
+
+  toggleArchive(item: HistoryItem): void {
+    this.historyService.toggleArchive(item.guid).subscribe({
+      next: (response) => {
+        item.is_archived = response.data.is_archived;
+        this.toastService.showSuccess(
+          item.is_archived ? 'Item archived' : 'Item unarchived'
+        );
+        // If currently filtering by archived status, reload
+        if (this.showArchived !== undefined) {
+          this.loadHistory();
+        } else {
+          this.applyFilters();
+        }
+      },
+      error: (error) => {
+        console.error('Error toggling archive:', error);
+        this.toastService.showError('Failed to update archive status');
+      }
+    });
+  }
+
+  editTitle(item: HistoryItem): void {
+    const newTitle = prompt('Enter new title:', item.title);
+    if (newTitle && newTitle.trim() !== item.title) {
+      this.historyService.updateHistory(item.guid, { title: newTitle.trim() }).subscribe({
+        next: () => {
+          item.title = newTitle.trim();
+          this.toastService.showSuccess('Title updated successfully');
+        },
+        error: (error) => {
+          console.error('Error updating title:', error);
+          this.toastService.showError('Failed to update title');
+        }
+      });
     }
   }
 
-  exportSelectedReports(): void {
-    if (this.selectedReports.length === 0) return;
-
-    console.log('Exporting reports:', this.selectedReports);
-    // Implement bulk export functionality
+  manageTags(item: HistoryItem): void {
+    const currentTags = item.tags.join(', ');
+    const newTags = prompt('Enter tags (comma-separated):', currentTags);
+    if (newTags !== null) {
+      const tagArray = newTags.split(',').map(tag => tag.trim()).filter(tag => tag);
+      this.historyService.updateHistory(item.guid, { tags: tagArray }).subscribe({
+        next: () => {
+          item.tags = tagArray;
+          this.toastService.showSuccess('Tags updated successfully');
+        },
+        error: (error) => {
+          console.error('Error updating tags:', error);
+          this.toastService.showError('Failed to update tags');
+        }
+      });
+    }
   }
 
+  deleteHistoryItem(item: HistoryItem): void {
+    if (confirm('Are you sure you want to delete this history item? This action cannot be undone.')) {
+      this.historyService.deleteHistory(item.guid).subscribe({
+        next: () => {
+          this.historyItems = this.historyItems.filter(h => h.guid !== item.guid);
+          this.applyFilters();
+          this.toastService.showSuccess('History item deleted successfully');
+          this.loadStatistics(); // Refresh stats
+        },
+        error: (error) => {
+          console.error('Error deleting history item:', error);
+          this.toastService.showError('Failed to delete history item');
+        }
+      });
+    }
+  }
+
+  downloadReport(report: HistoryItem, event: Event): void {
+    event.stopPropagation();
+
+    this.toastService.showInfo('Preparing download...');
+
+    this.historyService.downloadReport(report.guid, 'pdf').subscribe({
+      next: (blob) => {
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${report.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_report.pdf`;
+        link.click();
+
+        // Clean up
+        window.URL.revokeObjectURL(url);
+
+        this.toastService.showSuccess('Report downloaded successfully');
+      },
+      error: (error) => {
+        console.error('Error downloading report:', error);
+        this.toastService.showError('Failed to download report');
+      }
+    });
+  }
+
+  exportHistory(): void {
+    const filters: any = {};
+    if (this.showArchived !== undefined) {
+      filters.is_archived = this.showArchived;
+    }
+
+    this.toastService.showInfo('Preparing export...');
+
+    this.historyService.exportHistory(filters).subscribe({
+      next: (blob) => {
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `history_export_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+
+        // Clean up
+        window.URL.revokeObjectURL(url);
+
+        this.toastService.showSuccess('History exported successfully');
+      },
+      error: (error) => {
+        console.error('Error exporting history:', error);
+        this.toastService.showError('Failed to export history');
+      }
+    });
+  }
+
+  showOptionsMenu(item: HistoryItem, event: MouseEvent): void {
+    event.stopPropagation();
+    this.showOptionsMenuFor = item;
+    this.optionsMenuPosition = { x: event.clientX, y: event.clientY };
+
+    // Close menu when clicking elsewhere
+    setTimeout(() => {
+      document.addEventListener('click', () => {
+        this.showOptionsMenuFor = null;
+      }, { once: true });
+    });
+  }
+
+  duplicateReport(item: HistoryItem): void {
+    this.historyService.duplicateHistory(item.guid).subscribe({
+      next: (response) => {
+        this.toastService.showSuccess('Report duplicated successfully');
+        this.loadHistory(); // Refresh the list to show the new duplicate
+      },
+      error: (error) => {
+        console.error('Error duplicating report:', error);
+        this.toastService.showError('Failed to duplicate report');
+      }
+    });
+  }
+
+  // Utility methods
   getVerdictClass(verdict: string): string {
     const classes: { [key: string]: string } = {
       'LOW': 'verdict-low',
@@ -469,166 +480,15 @@ export class HistoryComponent implements OnInit {
     return icons[checkType] || 'fas fa-file';
   }
 
-  getRiskLevelClass(isHighRisk: boolean, isPlagiarized: boolean): string {
-    if (isHighRisk) return 'risk-high';
-    if (isPlagiarized) return 'risk-medium';
-    return 'risk-low';
-  }
-
-  getScoreClass(score: number): string {
-    if (score >= 80) return 'score-high';
-    if (score >= 50) return 'score-medium';
-    if (score >= 30) return 'score-low';
-    return 'score-very-low';
-  }
-
-  formatFileSize(bytes: number): string {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  }
-
-  getProcessingTimeClass(time: number): string {
-    if (time > 5) return 'time-slow';
-    if (time > 2) return 'time-medium';
-    return 'time-fast';
-  }
-
   getFileName(filePath: string): string {
     if (!filePath) return '';
     return filePath.split('/').pop() || filePath;
   }
 
-  generateReportSummary(report: HistoryReport): string {
+  generateReportSummary(item: HistoryItem): string {
+    const report = item.report_summary;
     const riskLevel = report.is_high_risk ? 'High' : (report.is_plagiarized ? 'Medium' : 'Low');
     return `${report.check_type_display} analysis with ${report.formatted_score} similarity score (${riskLevel} risk)`;
-  }
-
-  // Pagination methods
-  changePage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      // In real implementation, reload data for the new page
-    }
-  }
-
-  getPaginationPages(): number[] {
-    const pages: number[] = [];
-    const maxPages = 5;
-    const startPage = Math.max(1, this.currentPage - Math.floor(maxPages / 2));
-    const endPage = Math.min(this.totalPages, startPage + maxPages - 1);
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    return pages;
-  }
-
-  // Additional methods for history functionality
-  filterHistory(): void {
-    this.filteredHistory = this.reports.filter(report => {
-      const matchesSearch = !this.searchTerm ||
-        report.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        report.suspicious_file_name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        report.source_file_name?.toLowerCase().includes(this.searchTerm.toLowerCase());
-
-      const matchesVerdict = !this.selectedVerdict || report.verdict === this.selectedVerdict;
-
-      let matchesPeriod = true;
-      if (this.selectedPeriod) {
-        const reportDate = new Date(report.created);
-        const now = new Date();
-        switch (this.selectedPeriod) {
-          case 'today':
-            matchesPeriod = reportDate.toDateString() === now.toDateString();
-            break;
-          case 'week':
-            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-            matchesPeriod = reportDate >= weekAgo;
-            break;
-          case 'month':
-            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-            matchesPeriod = reportDate >= monthAgo;
-            break;
-        }
-      }
-
-      return matchesSearch && matchesVerdict && matchesPeriod;
-    });
-
-    this.updatePagination();
-    this.sortReports();
-  }
-
-  updatePagination(): void {
-    this.totalItems = this.filteredHistory.length;
-    this.totalPages = Math.ceil(this.totalItems / this.pageSize);
-
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.paginatedHistory = this.filteredHistory.slice(startIndex, endIndex);
-  }
-
-  openReport(reportId: string): void {
-    console.log('Opening report:', reportId);
-    // Navigate to report detail page
-    // this.router.navigate(['/reports', reportId]);
-  }
-
-  toggleFavorite(item: HistoryReport, event: Event): void {
-    event.stopPropagation();
-    console.log('Toggling favorite for:', item.guid);
-    // Implement favorite functionality
-  }
-
-  showOptionsMenu(item: HistoryReport, event: Event): void {
-    event.stopPropagation();
-    this.showOptionsMenuFor = item;
-    this.optionsMenuPosition = { x: (event as MouseEvent).clientX, y: (event as MouseEvent).clientY };
-  }
-
-  downloadReport(report: HistoryReport, event: Event): void {
-    event.stopPropagation();
-    console.log('Downloading report:', report.guid);
-    // Implement download functionality
-  }
-
-  exportHistory(): void {
-    console.log('Exporting history');
-    // Implement export functionality
-  }
-
-  editTitle(item: HistoryReport): void {
-    console.log('Editing title for:', item.guid);
-    this.showOptionsMenuFor = null;
-    // Implement title editing
-  }
-
-  manageTags(item: HistoryReport): void {
-    console.log('Managing tags for:', item.guid);
-    this.showOptionsMenuFor = null;
-    // Implement tag management
-  }
-
-  goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.updatePagination();
-    }
-  }
-
-  getPageNumbers(): number[] {
-    const pages: number[] = [];
-    const maxPages = 5;
-    const startPage = Math.max(1, this.currentPage - Math.floor(maxPages / 2));
-    const endPage = Math.min(this.totalPages, startPage + maxPages - 1);
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    return pages;
   }
 
   // Template helper for Math access
@@ -636,27 +496,181 @@ export class HistoryComponent implements OnInit {
     return Math;
   }
 
-  duplicateReport(item: HistoryReport): void {
-    console.log('Duplicating report:', item.guid);
-    this.showOptionsMenuFor = null;
-    // Implement report duplication
-    // This would typically create a new check based on the same files
-  }
-
-  toggleArchive(item: HistoryReport): void {
-    console.log('Toggling archive for:', item.guid);
-    item.is_archived = !item.is_archived;
-    this.showOptionsMenuFor = null;
-    // Implement archive toggle API call
-  }
-
-  deleteHistoryItem(item: HistoryReport): void {
-    console.log('Deleting history item:', item.guid);
-    if (confirm('Are you sure you want to delete this history item? This action cannot be undone.')) {
-      this.reports = this.reports.filter(r => r.guid !== item.guid);
-      this.filterHistory();
-      this.showOptionsMenuFor = null;
-      // Implement delete API call
+  // Selection methods
+  toggleReportSelection(reportId: string): void {
+    const index = this.selectedReports.indexOf(reportId);
+    if (index > -1) {
+      this.selectedReports.splice(index, 1);
+    } else {
+      this.selectedReports.push(reportId);
     }
+  }
+
+  selectAllReports(): void {
+    if (this.selectedReports.length === this.paginatedHistory.length) {
+      this.selectedReports = [];
+    } else {
+      this.selectedReports = this.paginatedHistory.map(item => item.guid);
+    }
+  }  deleteSelectedReports(): void {
+    if (this.selectedReports.length === 0) return;
+
+    const count = this.selectedReports.length;
+    if (confirm(`Are you sure you want to delete ${count} selected report(s)?`)) {
+      // Use the enhanced bulk delete service
+      this.historyService.bulkDeleteHistory(this.selectedReports).subscribe({
+        next: (result) => {
+          // Remove deleted items from the local array
+          this.historyItems = this.historyItems.filter(h => !this.selectedReports.includes(h.guid));
+          this.selectedReports = [];
+          this.applyFilters();
+          this.toastService.showSuccess(`${count} items deleted successfully`);
+          this.loadStatistics();
+        },
+        error: (error) => {
+          console.error('Error deleting selected reports:', error);
+          if (error.partialSuccess > 0) {
+            this.toastService.showWarning(`${error.partialSuccess} items deleted, ${error.errors.length} failed`);
+            // Refresh the list to show current state
+            this.loadHistory();
+          } else {
+            this.toastService.showError('Failed to delete selected items');
+          }
+          this.selectedReports = [];
+        }
+      });
+    }
+  }
+
+  // Bulk operations for selected reports
+  bulkAddToFavorites(): void {
+    if (this.selectedReports.length === 0) return;
+
+    const count = this.selectedReports.length;
+    this.historyService.bulkToggleFavorite(this.selectedReports, true).subscribe({
+      next: (result) => {
+        // Update local items
+        this.historyItems.forEach(item => {
+          if (this.selectedReports.includes(item.guid)) {
+            item.is_favorite = true;
+          }
+        });
+        this.selectedReports = [];
+        this.applyFilters();
+        this.toastService.showSuccess(`${count} items added to favorites`);
+        this.loadStatistics();
+      },
+      error: (error) => {
+        console.error('Error updating favorites:', error);
+        if (error.partialSuccess > 0) {
+          this.toastService.showWarning(`${error.partialSuccess} items updated, ${error.errors.length} failed`);
+          this.loadHistory();
+        } else {
+          this.toastService.showError('Failed to update favorites');
+        }
+        this.selectedReports = [];
+      }
+    });
+  }
+
+  bulkRemoveFromFavorites(): void {
+    if (this.selectedReports.length === 0) return;
+
+    const count = this.selectedReports.length;
+    this.historyService.bulkToggleFavorite(this.selectedReports, false).subscribe({
+      next: (result) => {
+        // Update local items
+        this.historyItems.forEach(item => {
+          if (this.selectedReports.includes(item.guid)) {
+            item.is_favorite = false;
+          }
+        });
+        this.selectedReports = [];
+        this.applyFilters();
+        this.toastService.showSuccess(`${count} items removed from favorites`);
+        this.loadStatistics();
+      },
+      error: (error) => {
+        console.error('Error updating favorites:', error);
+        if (error.partialSuccess > 0) {
+          this.toastService.showWarning(`${error.partialSuccess} items updated, ${error.errors.length} failed`);
+          this.loadHistory();
+        } else {
+          this.toastService.showError('Failed to update favorites');
+        }
+        this.selectedReports = [];
+      }
+    });
+  }
+
+  bulkArchive(): void {
+    if (this.selectedReports.length === 0) return;
+
+    const count = this.selectedReports.length;
+    this.historyService.bulkToggleArchive(this.selectedReports, true).subscribe({
+      next: (result) => {
+        // Update local items
+        this.historyItems.forEach(item => {
+          if (this.selectedReports.includes(item.guid)) {
+            item.is_archived = true;
+          }
+        });
+        this.selectedReports = [];
+        this.applyFilters();
+        this.toastService.showSuccess(`${count} items archived`);
+        this.loadStatistics();
+      },
+      error: (error) => {
+        console.error('Error archiving items:', error);
+        if (error.partialSuccess > 0) {
+          this.toastService.showWarning(`${error.partialSuccess} items updated, ${error.errors.length} failed`);
+          this.loadHistory();
+        } else {
+          this.toastService.showError('Failed to archive items');
+        }
+        this.selectedReports = [];
+      }
+    });
+  }
+
+  bulkUnarchive(): void {
+    if (this.selectedReports.length === 0) return;
+
+    const count = this.selectedReports.length;
+    this.historyService.bulkToggleArchive(this.selectedReports, false).subscribe({
+      next: (result) => {
+        // Update local items
+        this.historyItems.forEach(item => {
+          if (this.selectedReports.includes(item.guid)) {
+            item.is_archived = false;
+          }
+        });
+        this.selectedReports = [];
+        this.applyFilters();
+        this.toastService.showSuccess(`${count} items unarchived`);
+        this.loadStatistics();
+      },
+      error: (error) => {
+        console.error('Error unarchiving items:', error);
+        if (error.partialSuccess > 0) {
+          this.toastService.showWarning(`${error.partialSuccess} items updated, ${error.errors.length} failed`);
+          this.loadHistory();
+        } else {
+          this.toastService.showError('Failed to unarchive items');
+        }
+        this.selectedReports = [];
+      }
+    });
+  }
+
+  // Helper method to check if any reports are selected
+  get hasSelectedReports(): boolean {
+    return this.selectedReports.length > 0;
+  }
+
+  // Helper method to check if all visible reports are selected
+  get allVisibleSelected(): boolean {
+    return this.paginatedHistory.length > 0 &&
+           this.selectedReports.length === this.paginatedHistory.length;
   }
 }

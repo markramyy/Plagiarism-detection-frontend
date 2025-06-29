@@ -91,8 +91,8 @@
             <h3>{{ item.title }}</h3>
             <div class="report-meta">
               <span class="report-type">
-                <i [class]="getTypeIcon(item.check_type)"></i>
-                {{ item.check_type_display }}
+                <i [class]="getTypeIcon(item.report_summary.check_type)"></i>
+                {{ item.report_summary.check_type_display }}
               </span>
               <span class="report-date">{{ item.last_viewed | date:'MMM dd, yyyy' }}</span>
             </div>
@@ -117,25 +117,25 @@
           <div class="score-section">
             <div class="score-display">
               <app-accuracy-ring
-                [accuracy]="item.overall_score">
+                [accuracy]="item.report_summary.overall_score">
               </app-accuracy-ring>
               <div class="score-info">
-                <span class="score-value">{{ item.formatted_score }}</span>
-                <span class="verdict-badge" [class]="getVerdictClass(item.verdict)">
-                  {{ item.verdict_display }}
+                <span class="score-value">{{ item.report_summary.formatted_score }}</span>
+                <span class="verdict-badge" [class]="getVerdictClass(item.report_summary.verdict)">
+                  {{ item.report_summary.verdict_display }}
                 </span>
               </div>
             </div>
           </div>
 
-          <div class="content-preview" *ngIf="item.suspicious_file_name || item.source_file_name">
-            <div class="file-info" *ngIf="item.suspicious_file_name">
+          <div class="content-preview" *ngIf="item.report_summary.suspicious_file_name || item.report_summary.source_file_name">
+            <div class="file-info" *ngIf="item.report_summary.suspicious_file_name">
               <i class="fas fa-file-alt"></i>
-              <span>{{ item.suspicious_file_name }}</span>
+              <span>{{ item.report_summary.suspicious_file_name }}</span>
             </div>
-            <div class="file-info" *ngIf="item.source_file_name">
+            <div class="file-info" *ngIf="item.report_summary.source_file_name">
               <i class="fas fa-file-text"></i>
-              <span>{{ item.source_file_name }}</span>
+              <span>{{ item.report_summary.source_file_name }}</span>
             </div>
           </div>
 
@@ -144,9 +144,9 @@
               <i class="fas fa-eye"></i>
               <span>{{ item.view_count }} views</span>
             </div>
-            <div class="stat">
+            <div class="stat" *ngIf="item.report_summary.processing_time">
               <i class="fas fa-clock"></i>
-              <span>{{ item.processing_time.toFixed(2) }}s</span>
+              <span>{{ item.report_summary.processing_time.toFixed(2) }}s</span>
             </div>
             <div class="stat">
               <i class="fas fa-calendar"></i>
@@ -181,12 +181,12 @@
         <div class="list-cell title">
           <div class="title-content">
             <h4>{{ item.title }}</h4>
-            <div class="file-list" *ngIf="item.suspicious_file_name || item.source_file_name">
-              <span *ngIf="item.suspicious_file_name" class="file-name">
-                <i class="fas fa-file-alt"></i> {{ item.suspicious_file_name }}
+            <div class="file-list" *ngIf="item.report_summary.suspicious_file_name || item.report_summary.source_file_name">
+              <span *ngIf="item.report_summary.suspicious_file_name" class="file-name">
+                <i class="fas fa-file-alt"></i> {{ item.report_summary.suspicious_file_name }}
               </span>
-              <span *ngIf="item.source_file_name" class="file-name">
-                <i class="fas fa-file-text"></i> {{ item.source_file_name }}
+              <span *ngIf="item.report_summary.source_file_name" class="file-name">
+                <i class="fas fa-file-text"></i> {{ item.report_summary.source_file_name }}
               </span>
             </div>
             <div class="tags" *ngIf="item.tags && item.tags.length > 0">
@@ -196,24 +196,24 @@
         </div>
 
         <div class="list-cell type">
-          <span class="type-badge" [class]="'type-' + item.check_type">
-            <i [class]="getTypeIcon(item.check_type)"></i>
-            {{ item.check_type_display }}
+          <span class="type-badge" [class]="'type-' + item.report_summary.check_type">
+            <i [class]="getTypeIcon(item.report_summary.check_type)"></i>
+            {{ item.report_summary.check_type_display }}
           </span>
         </div>
 
         <div class="list-cell score">
           <div class="score-compact">
-            <span class="score-number">{{ item.formatted_score }}</span>
+            <span class="score-number">{{ item.report_summary.formatted_score }}</span>
             <div class="score-bar">
-              <div class="score-fill" [style.width.%]="item.overall_score"></div>
+              <div class="score-fill" [style.width.%]="item.report_summary.overall_score"></div>
             </div>
           </div>
         </div>
 
         <div class="list-cell verdict">
-          <span class="verdict-badge" [class]="getVerdictClass(item.verdict)">
-            {{ item.verdict_display }}
+          <span class="verdict-badge" [class]="getVerdictClass(item.report_summary.verdict)">
+            {{ item.report_summary.verdict_display }}
           </span>
         </div>
 
