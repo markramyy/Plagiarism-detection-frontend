@@ -1,42 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-
-interface ComponentScore {
-  guid: string;
-  component_type: string;
-  component_display: string;
-  score: number;
-  formatted_score: string;
-  weight: number;
-}
-
-interface Report {
-  guid: string;
-  check_type: string;
-  check_type_display: string;
-  verdict: string;
-  verdict_display: string;
-  overall_score: number;
-  formatted_score: string;
-  is_plagiarized: boolean;
-  is_high_risk: boolean;
-  confidence: number;
-  created: string;
-  modified: string;
-  component_scores: ComponentScore[];
-  suspicious_file_name?: string;
-  source_file_name?: string;
-  suspicious_text?: string;
-  processing_time?: number;
-}
-
-interface ReportsResponse {
-  message: string;
-  data: Report[];
-  total_count: number;
-  page: number;
-  page_size: number;
-}
+import { PlagiarismService, Report, ReportsResponse } from '../../services/plagiarism.service';
 
 @Component({
   selector: 'app-reports',
@@ -83,7 +47,10 @@ export class ReportsComponent implements OnInit {
     { value: 'file_to_file', label: 'File to File' }
   ];
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private plagiarismService: PlagiarismService
+  ) { }
 
   ngOnInit(): void {
     this.loadReports();
@@ -93,130 +60,23 @@ export class ReportsComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    // Mock data based on real backend structure
-    setTimeout(() => {
-      const mockResponse: ReportsResponse = {
-        message: "Reports fetched successfully",
-        data: [
-          {
-            guid: "3f236e44-b458-420b-b444-ee57334e8170",
-            check_type: "file_to_file",
-            check_type_display: "File to File",
-            verdict: "MID",
-            verdict_display: "MID plagiarism risk",
-            overall_score: 51.26,
-            formatted_score: "51.26%",
-            is_plagiarized: true,
-            is_high_risk: false,
-            confidence: 0.5885,
-            created: "2025-06-27T09:26:20.060472Z",
-            modified: "2025-06-27T09:26:20.060516Z",
-            component_scores: [
-              {
-                guid: "998d2c29-095a-4eab-9069-5dd738bec272",
-                component_type: "structural",
-                component_display: "Structural Similarity (LSTM1)",
-                score: 28.96,
-                formatted_score: "28.96%",
-                weight: 0.3
-              },
-              {
-                guid: "362699f4-c0fb-4868-ad7e-2e2ac80a9722",
-                component_type: "semantic",
-                component_display: "Semantic Similarity (LSTM2)",
-                score: 100,
-                formatted_score: "100.00%",
-                weight: 0.3
-              }
-            ],
-            suspicious_file_name: "user_text.txt",
-            source_file_name: "sample_pdf.pdf",
-            suspicious_text: "The Renaissance era represented a time of cultural, artistic, political and economic revival...",
-            processing_time: 2.67
-          },
-          {
-            guid: "550e8400-e29b-41d4-a716-446655440002",
-            check_type: "file_to_file",
-            check_type_display: "File to File",
-            verdict: "HIGH",
-            verdict_display: "HIGH plagiarism risk",
-            overall_score: 87.45,
-            formatted_score: "87.45%",
-            is_plagiarized: true,
-            is_high_risk: true,
-            confidence: 0.8745,
-            created: "2025-06-26T14:15:30.000000Z",
-            modified: "2025-06-26T14:15:30.000000Z",
-            component_scores: [
-              {
-                guid: "998d2c29-095a-4eab-9069-5dd738bec273",
-                component_type: "structural",
-                component_display: "Structural Similarity (LSTM1)",
-                score: 85.32,
-                formatted_score: "85.32%",
-                weight: 0.3
-              },
-              {
-                guid: "362699f4-c0fb-4868-ad7e-2e2ac80a9723",
-                component_type: "semantic",
-                component_display: "Semantic Similarity (LSTM2)",
-                score: 92.15,
-                formatted_score: "92.15%",
-                weight: 0.3
-              }
-            ],
-            suspicious_file_name: "student_essay.docx",
-            source_file_name: "reference_paper.pdf",
-            suspicious_text: "Machine learning is a powerful tool that enables computers to learn patterns...",
-            processing_time: 5.23
-          },
-          {
-            guid: "550e8400-e29b-41d4-a716-446655440003",
-            check_type: "text_to_text",
-            check_type_display: "Text to Text",
-            verdict: "LOW",
-            verdict_display: "LOW plagiarism risk",
-            overall_score: 15.23,
-            formatted_score: "15.23%",
-            is_plagiarized: false,
-            is_high_risk: false,
-            confidence: 0.1523,
-            created: "2025-06-25T10:30:45.000000Z",
-            modified: "2025-06-25T10:30:45.000000Z",
-            component_scores: [
-              {
-                guid: "998d2c29-095a-4eab-9069-5dd738bec274",
-                component_type: "structural",
-                component_display: "Structural Similarity (LSTM1)",
-                score: 12.45,
-                formatted_score: "12.45%",
-                weight: 0.3
-              },
-              {
-                guid: "362699f4-c0fb-4868-ad7e-2e2ac80a9724",
-                component_type: "semantic",
-                component_display: "Semantic Similarity (LSTM2)",
-                score: 18.67,
-                formatted_score: "18.67%",
-                weight: 0.3
-              }
-            ],
-            suspicious_file_name: "text_input.txt",
-            source_file_name: "comparison_text.txt",
-            suspicious_text: "Climate change represents one of the most significant challenges of our time...",
-            processing_time: 1.45
-          }
-        ],
-        total_count: 3,
-        page: 1,
-        page_size: 10
-      };
-
-      this.reports = mockResponse.data;
-      this.totalReports = mockResponse.total_count;
-      this.filterReports();
-      this.loading = false;
-    }, 500);
+    this.plagiarismService.getReports(this.currentPage, this.pageSize).subscribe({
+      next: (response: ReportsResponse) => {
+        console.log('Reports response:', response);
+        this.reports = response.results;
+        this.totalReports = response.count;
+        this.filterReports();
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error fetching reports:', error);
+        this.error = error.error?.message || 'Failed to load reports. Please try again.';
+        this.loading = false;
+        this.reports = [];
+        this.filteredReports = [];
+        this.totalReports = 0;
+      }
+    });
   }
 
   filterReports(): void {
@@ -405,7 +265,7 @@ export class ReportsComponent implements OnInit {
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
-      // In real implementation, reload data for the new page
+      this.loadReports(); // Reload data for the new page
     }
   }
 
@@ -424,5 +284,10 @@ export class ReportsComponent implements OnInit {
   // Template helper for Math access
   get Math() {
     return Math;
+  }
+
+  refreshReports(): void {
+    this.currentPage = 1;
+    this.loadReports();
   }
 }

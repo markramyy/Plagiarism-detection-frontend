@@ -11,6 +11,34 @@ export interface ComponentScores {
   exact_similarity: number;
 }
 
+export interface ReportComponentScore {
+  guid: string;
+  component_type: string;
+  component_display: string;
+  score: number;
+  formatted_score: string;
+  weight: number;
+}
+
+export interface Report {
+  guid: string;
+  check_type: string;
+  check_type_display: string;
+  verdict: string;
+  verdict_display: string;
+  overall_score: number;
+  formatted_score: string;
+  is_plagiarized: boolean;
+  is_high_risk: boolean;
+  confidence: number;
+  created: string;
+  component_scores: ReportComponentScore[];
+  suspicious_file_name?: string;
+  source_file_name?: string;
+  suspicious_text?: string;
+  processing_time?: number;
+}
+
 export interface DetailedResults {
   overall_score: number;
   component_scores: ComponentScores;
@@ -45,6 +73,14 @@ export interface PlagiarismResult {
     enhancement: string;
     enhancement_reason: string;
   };
+}
+
+export interface ReportsResponse {
+  message: string;
+  results: Report[];
+  count: number;
+  next?: string | null;
+  previous?: string | null;
 }
 
 export interface PlagiarismResponse {
@@ -117,5 +153,29 @@ export class PlagiarismService {
     });
 
     return this.http.post<PlagiarismResponse>(url, formData, { headers });
+  }
+
+  getReports(page: number = 1, pageSize: number = 10): Observable<ReportsResponse> {
+    this.logAuthStatus();
+    const url = `${this.baseUrl}/report/reports/?page=${page}&page_size=${pageSize}`;
+
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<ReportsResponse>(url, { headers });
+  }
+
+  getReportById(reportId: string): Observable<Report> {
+    this.logAuthStatus();
+    const url = `${this.baseUrl}/report/reports/${reportId}/`;
+
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<Report>(url, { headers });
   }
 }
