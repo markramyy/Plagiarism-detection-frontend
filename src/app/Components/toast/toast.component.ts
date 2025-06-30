@@ -46,4 +46,14 @@ export class ToastComponent implements OnInit, OnDestroy {
       default: return this.infoIcon;
     }
   }
+
+  getIconClass(type: string): string {
+    switch (type) {
+      case 'success': return 'fas fa-check-circle';
+      case 'error': return 'fas fa-exclamation-triangle';
+      case 'warning': return 'fas fa-exclamation-triangle';
+      case 'info': return 'fas fa-info-circle';
+      default: return 'fas fa-info-circle';
+    }
+  }
 }

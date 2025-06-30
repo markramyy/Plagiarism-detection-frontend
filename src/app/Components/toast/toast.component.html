@@ -8,14 +8,14 @@
     aria-atomic="true">
 
     <div class="toast-header">
-      <fa-icon [icon]="getIcon(toast.type)" class="toast-icon"></fa-icon>
+      <i [class]="getIconClass(toast.type)" class="toast-icon"></i>
       <strong class="toast-title">{{ toast.title || (toast.type | titlecase) }}</strong>
       <button
         type="button"
         class="btn-close"
         (click)="removeToast(toast.id)"
         aria-label="Close">
-        <fa-icon [icon]="closeIcon"></fa-icon>
+        <i class="fas fa-times"></i>
       </button>
     </div>
 

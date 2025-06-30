@@ -13,7 +13,7 @@
         <div class="user-details">
           <h1 class="user-name">{{ userProfile?.first_name }} {{ userProfile?.last_name }}</h1>
           <p class="user-email">{{ userProfile?.email }}</p>
-          <p class="member-since">Member since {{ userProfile?.date_joined | date:'MMM yyyy' }}</p>
+          <p class="member-since">Member since {{ (userProfile?.created || userProfile?.date_joined) | date:'MMM yyyy' }}</p>
         </div>
       </div>
       <div class="profile-actions">
@@ -34,7 +34,19 @@
             <h3><i class="fas fa-user"></i> Personal Information</h3>
           </div>
           <div class="card-body">
-            <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" *ngIf="editMode">
+            <!-- Loading indicator -->
+            <div *ngIf="loading" class="loading-container">
+              <i class="fas fa-spinner fa-spin"></i>
+              <span>Loading...</span>
+            </div>
+
+            <!-- Error message -->
+            <div *ngIf="error" class="error-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <span>{{ error }}</span>
+            </div>
+
+            <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" *ngIf="editMode && !loading">
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
@@ -66,7 +78,9 @@
                   id="email"
                   class="form-control"
                   formControlName="email"
-                  placeholder="Enter email">
+                  placeholder="Enter email"
+                  readonly
+                  title="Email cannot be changed">
               </div>
               <div class="form-group">
                 <label for="username">Username</label>
@@ -75,15 +89,18 @@
                   id="username"
                   class="form-control"
                   formControlName="username"
-                  placeholder="Enter username">
+                  placeholder="Enter username"
+                  readonly
+                  title="Username cannot be changed">
               </div>
-              <button type="submit" class="btn btn-success">
-                <i class="fas fa-save"></i> Save Changes
+              <button type="submit" class="btn btn-success" [disabled]="profileForm.invalid || loading">
+                <i class="fas fa-save"></i>
+                {{ loading ? 'Saving...' : 'Save Changes' }}
               </button>
             </form>
 
             <!-- View Mode -->
-            <div *ngIf="!editMode" class="profile-view">
+            <div *ngIf="!editMode && !loading" class="profile-view">
               <div class="info-row">
                 <span class="label">First Name:</span>
                 <span class="value">{{ userProfile?.first_name || 'Not set' }}</span>
@@ -138,8 +155,9 @@
                   formControlName="confirmPassword"
                   placeholder="Confirm new password">
               </div>
-              <button type="submit" class="btn btn-warning" [disabled]="passwordForm.invalid">
-                <i class="fas fa-key"></i> Change Password
+              <button type="submit" class="btn btn-warning" [disabled]="passwordForm.invalid || loading">
+                <i class="fas fa-key"></i>
+                {{ loading ? 'Processing...' : 'Change Password' }}
               </button>
             </form>
           </div>
