@@ -68,10 +68,7 @@
     </div>
 
     <div class="action-controls">
-      <button class="btn btn-secondary" (click)="exportHistory()">
-        <i class="fas fa-download"></i> Export
-      </button>
-      <button class="btn btn-outline" (click)="showArchived = !showArchived">
+      <button class="btn btn-outline" (click)="showArchived = !showArchived; loadHistory()">
         <i class="fas fa-archive"></i>
         {{ showArchived ? 'Hide Archived' : 'Show Archived' }}
       </button>
@@ -94,7 +91,7 @@
                 <i [class]="getTypeIcon(item.report_summary.check_type)"></i>
                 {{ item.report_summary.check_type_display }}
               </span>
-              <span class="report-date">{{ item.last_viewed | date:'MMM dd, yyyy' }}</span>
+              <span class="report-date">{{ item.created | date:'MMM dd, yyyy' }}</span>
             </div>
           </div>
 
@@ -105,10 +102,11 @@
                     title="Toggle Favorite">
               <i [class]="item.is_favorite ? 'fas fa-heart' : 'far fa-heart'"></i>
             </button>
-            <button class="action-btn"
-                    (click)="showOptionsMenu(item, $event)"
-                    title="More Options">
-              <i class="fas fa-ellipsis-v"></i>
+            <button class="action-btn archive"
+                    [class.active]="item.is_archived"
+                    (click)="toggleArchive(item, $event)"
+                    title="Toggle Archive">
+              <i [class]="item.is_archived ? 'fas fa-box-open' : 'fas fa-archive'"></i>
             </button>
           </div>
         </div>
@@ -140,10 +138,6 @@
           </div>
 
           <div class="card-stats">
-            <div class="stat">
-              <i class="fas fa-eye"></i>
-              <span>{{ item.view_count }} views</span>
-            </div>
             <div class="stat" *ngIf="item.report_summary.processing_time">
               <i class="fas fa-clock"></i>
               <span>{{ item.report_summary.processing_time.toFixed(2) }}s</span>
@@ -169,8 +163,6 @@
         <div class="header-cell type">Type</div>
         <div class="header-cell score">Score</div>
         <div class="header-cell verdict">Verdict</div>
-        <div class="header-cell date">Last Viewed</div>
-        <div class="header-cell views">Views</div>
         <div class="header-cell actions">Actions</div>
       </div>
 
@@ -217,15 +209,6 @@
           </span>
         </div>
 
-        <div class="list-cell date">
-          <span class="date-main">{{ item.last_viewed | date:'MMM dd, yyyy' }}</span>
-          <span class="date-time">{{ item.last_viewed | date:'HH:mm' }}</span>
-        </div>
-
-        <div class="list-cell views">
-          <span class="view-count">{{ item.view_count }}</span>
-        </div>
-
         <div class="list-cell actions">
           <button class="action-btn favorite"
                   [class.active]="item.is_favorite"
@@ -233,15 +216,11 @@
                   title="Toggle Favorite">
             <i [class]="item.is_favorite ? 'fas fa-heart' : 'far fa-heart'"></i>
           </button>
-          <button class="action-btn"
-                  (click)="downloadReport(item, $event)"
-                  title="Download">
-            <i class="fas fa-download"></i>
-          </button>
-          <button class="action-btn"
-                  (click)="showOptionsMenu(item, $event)"
-                  title="More Options">
-            <i class="fas fa-ellipsis-v"></i>
+          <button class="action-btn archive"
+                  [class.active]="item.is_archived"
+                  (click)="toggleArchive(item, $event)"
+                  title="Toggle Archive">
+            <i [class]="item.is_archived ? 'fas fa-box-open' : 'fas fa-archive'"></i>
           </button>
         </div>
       </div>
@@ -296,28 +275,6 @@
       </button>
     </div>
   </div>
-</div>
-
-<!-- Options Menu (shown when clicking ellipsis) -->
-<div class="options-menu" *ngIf="showOptionsMenuFor"
-     [style.top.px]="optionsMenuPosition.y"
-     [style.left.px]="optionsMenuPosition.x">
-  <button (click)="editTitle(showOptionsMenuFor)">
-    <i class="fas fa-edit"></i> Edit Title
-  </button>
-  <button (click)="manageTags(showOptionsMenuFor)">
-    <i class="fas fa-tags"></i> Manage Tags
-  </button>
-  <button (click)="duplicateReport(showOptionsMenuFor)">
-    <i class="fas fa-copy"></i> Duplicate
-  </button>
-  <button (click)="toggleArchive(showOptionsMenuFor)">
-    <i [class]="showOptionsMenuFor.is_archived ? 'fas fa-box-open' : 'fas fa-archive'"></i>
-    {{ showOptionsMenuFor.is_archived ? 'Unarchive' : 'Archive' }}
-  </button>
-  <button class="danger" (click)="deleteHistoryItem(showOptionsMenuFor)">
-    <i class="fas fa-trash"></i> Delete
-  </button>
 </div>
 
 <!-- Loading State -->

@@ -29,7 +29,7 @@ export class HistoryComponent implements OnInit {
   showArchived = false;
 
   // Sorting
-  sortBy = 'last_viewed';
+  sortBy = 'created';
   sortDirection: 'asc' | 'desc' = 'desc';
 
   // Pagination
@@ -41,8 +41,6 @@ export class HistoryComponent implements OnInit {
   // UI
   selectedReports: string[] = [];
   viewMode: 'grid' | 'list' = 'grid';
-  showOptionsMenuFor: HistoryItem | null = null;
-  optionsMenuPosition = { x: 0, y: 0 };
 
   verdictOptions = [
     { value: '', label: 'All Verdicts' },
@@ -76,8 +74,10 @@ export class HistoryComponent implements OnInit {
     this.error = null;
 
     const filters: any = {};
-    if (this.showArchived !== undefined) {
-      filters.is_archived = this.showArchived;
+    if (this.showArchived) {
+      filters.is_archived = true;
+    } else {
+      filters.is_archived = false;
     }
 
     this.historyService.getHistory(this.currentPage, this.pageSize, filters).subscribe({
@@ -139,7 +139,7 @@ export class HistoryComponent implements OnInit {
 
       // Period filter
       if (this.selectedPeriod) {
-        const itemDate = new Date(item.last_viewed);
+        const itemDate = new Date(item.created);
         const now = new Date();
 
         switch (this.selectedPeriod) {
@@ -178,10 +178,6 @@ export class HistoryComponent implements OnInit {
           aVal = a.title;
           bVal = b.title;
           break;
-        case 'last_viewed':
-          aVal = new Date(a.last_viewed);
-          bVal = new Date(b.last_viewed);
-          break;
         case 'created':
           aVal = new Date(a.created);
           bVal = new Date(b.created);
@@ -194,13 +190,9 @@ export class HistoryComponent implements OnInit {
           aVal = a.report_summary.verdict;
           bVal = b.report_summary.verdict;
           break;
-        case 'view_count':
-          aVal = a.view_count;
-          bVal = b.view_count;
-          break;
         default:
-          aVal = new Date(a.last_viewed);
-          bVal = new Date(b.last_viewed);
+          aVal = new Date(a.created);
+          bVal = new Date(b.created);
       }
 
       if (aVal < bVal) return this.sortDirection === 'asc' ? -1 : 1;
@@ -269,11 +261,17 @@ export class HistoryComponent implements OnInit {
   }
 
   // Action methods
-  openReport(reportId: string): void {
-    // Extract the actual report GUID from the history item
-    const historyItem = this.historyItems.find(item => item.guid === reportId);
-    if (historyItem) {
-      this.router.navigate(['/reports', historyItem.report_summary.guid]);
+  openReport(historyItemId: string): void {
+    // Find the history item by its GUID (historyItemId is the history item's GUID)
+    const historyItem = this.historyItems.find(item => item.guid === historyItemId);
+
+    if (historyItem && historyItem.report_summary && historyItem.report_summary.guid) {
+      console.log('Navigating to report:', historyItem.report_summary.guid);
+      this.router.navigate(['/report', historyItem.report_summary.guid]);
+    } else {
+      console.error('Could not find report GUID for history item:', historyItemId);
+      console.error('Available history items:', this.historyItems.map(item => ({ historyGuid: item.guid, reportGuid: item.report_summary?.guid })));
+      this.toastService.showError('Unable to open report. Please try again.');
     }
   }
 
@@ -295,19 +293,19 @@ export class HistoryComponent implements OnInit {
     });
   }
 
-  toggleArchive(item: HistoryItem): void {
+  toggleArchive(item: HistoryItem, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+
     this.historyService.toggleArchive(item.guid).subscribe({
       next: (response) => {
         item.is_archived = response.data.is_archived;
         this.toastService.showSuccess(
           item.is_archived ? 'Item archived' : 'Item unarchived'
         );
-        // If currently filtering by archived status, reload
-        if (this.showArchived !== undefined) {
-          this.loadHistory();
-        } else {
-          this.applyFilters();
-        }
+        // Reload the history to reflect current filter state
+        this.loadHistory();
       },
       error: (error) => {
         console.error('Error toggling archive:', error);
@@ -317,135 +315,34 @@ export class HistoryComponent implements OnInit {
   }
 
   editTitle(item: HistoryItem): void {
-    const newTitle = prompt('Enter new title:', item.title);
-    if (newTitle && newTitle.trim() !== item.title) {
-      this.historyService.updateHistory(item.guid, { title: newTitle.trim() }).subscribe({
-        next: () => {
-          item.title = newTitle.trim();
-          this.toastService.showSuccess('Title updated successfully');
-        },
-        error: (error) => {
-          console.error('Error updating title:', error);
-          this.toastService.showError('Failed to update title');
-        }
-      });
-    }
+    // Edit title functionality disabled
+    this.toastService.showInfo('Edit title feature is currently disabled');
   }
 
   manageTags(item: HistoryItem): void {
-    const currentTags = item.tags.join(', ');
-    const newTags = prompt('Enter tags (comma-separated):', currentTags);
-    if (newTags !== null) {
-      const tagArray = newTags.split(',').map(tag => tag.trim()).filter(tag => tag);
-      this.historyService.updateHistory(item.guid, { tags: tagArray }).subscribe({
-        next: () => {
-          item.tags = tagArray;
-          this.toastService.showSuccess('Tags updated successfully');
-        },
-        error: (error) => {
-          console.error('Error updating tags:', error);
-          this.toastService.showError('Failed to update tags');
-        }
-      });
-    }
+    // Manage tags functionality disabled
+    this.toastService.showInfo('Manage tags feature is currently disabled');
   }
 
   deleteHistoryItem(item: HistoryItem): void {
-    if (confirm('Are you sure you want to delete this history item? This action cannot be undone.')) {
-      this.historyService.deleteHistory(item.guid).subscribe({
-        next: () => {
-          this.historyItems = this.historyItems.filter(h => h.guid !== item.guid);
-          this.applyFilters();
-          this.toastService.showSuccess('History item deleted successfully');
-          this.loadStatistics(); // Refresh stats
-        },
-        error: (error) => {
-          console.error('Error deleting history item:', error);
-          this.toastService.showError('Failed to delete history item');
-        }
-      });
-    }
+    // Delete functionality disabled
+    this.toastService.showInfo('Delete feature is currently disabled');
   }
 
   downloadReport(report: HistoryItem, event: Event): void {
     event.stopPropagation();
-
-    this.toastService.showInfo('Preparing download...');
-
-    this.historyService.downloadReport(report.guid, 'pdf').subscribe({
-      next: (blob) => {
-        // Create download link
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${report.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_report.pdf`;
-        link.click();
-
-        // Clean up
-        window.URL.revokeObjectURL(url);
-
-        this.toastService.showSuccess('Report downloaded successfully');
-      },
-      error: (error) => {
-        console.error('Error downloading report:', error);
-        this.toastService.showError('Failed to download report');
-      }
-    });
+    // Download functionality disabled
+    this.toastService.showInfo('Download feature is currently disabled');
   }
 
   exportHistory(): void {
-    const filters: any = {};
-    if (this.showArchived !== undefined) {
-      filters.is_archived = this.showArchived;
-    }
-
-    this.toastService.showInfo('Preparing export...');
-
-    this.historyService.exportHistory(filters).subscribe({
-      next: (blob) => {
-        // Create download link
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `history_export_${new Date().toISOString().split('T')[0]}.csv`;
-        link.click();
-
-        // Clean up
-        window.URL.revokeObjectURL(url);
-
-        this.toastService.showSuccess('History exported successfully');
-      },
-      error: (error) => {
-        console.error('Error exporting history:', error);
-        this.toastService.showError('Failed to export history');
-      }
-    });
-  }
-
-  showOptionsMenu(item: HistoryItem, event: MouseEvent): void {
-    event.stopPropagation();
-    this.showOptionsMenuFor = item;
-    this.optionsMenuPosition = { x: event.clientX, y: event.clientY };
-
-    // Close menu when clicking elsewhere
-    setTimeout(() => {
-      document.addEventListener('click', () => {
-        this.showOptionsMenuFor = null;
-      }, { once: true });
-    });
+    // Export functionality disabled
+    this.toastService.showInfo('Export feature is currently disabled');
   }
 
   duplicateReport(item: HistoryItem): void {
-    this.historyService.duplicateHistory(item.guid).subscribe({
-      next: (response) => {
-        this.toastService.showSuccess('Report duplicated successfully');
-        this.loadHistory(); // Refresh the list to show the new duplicate
-      },
-      error: (error) => {
-        console.error('Error duplicating report:', error);
-        this.toastService.showError('Failed to duplicate report');
-      }
-    });
+    // Duplicate functionality disabled
+    this.toastService.showInfo('Duplicate feature is currently disabled');
   }
 
   // Utility methods
@@ -512,34 +409,10 @@ export class HistoryComponent implements OnInit {
     } else {
       this.selectedReports = this.paginatedHistory.map(item => item.guid);
     }
-  }  deleteSelectedReports(): void {
-    if (this.selectedReports.length === 0) return;
-
-    const count = this.selectedReports.length;
-    if (confirm(`Are you sure you want to delete ${count} selected report(s)?`)) {
-      // Use the enhanced bulk delete service
-      this.historyService.bulkDeleteHistory(this.selectedReports).subscribe({
-        next: (result) => {
-          // Remove deleted items from the local array
-          this.historyItems = this.historyItems.filter(h => !this.selectedReports.includes(h.guid));
-          this.selectedReports = [];
-          this.applyFilters();
-          this.toastService.showSuccess(`${count} items deleted successfully`);
-          this.loadStatistics();
-        },
-        error: (error) => {
-          console.error('Error deleting selected reports:', error);
-          if (error.partialSuccess > 0) {
-            this.toastService.showWarning(`${error.partialSuccess} items deleted, ${error.errors.length} failed`);
-            // Refresh the list to show current state
-            this.loadHistory();
-          } else {
-            this.toastService.showError('Failed to delete selected items');
-          }
-          this.selectedReports = [];
-        }
-      });
-    }
+  }
+  deleteSelectedReports(): void {
+    // Bulk delete functionality disabled
+    this.toastService.showInfo('Bulk delete feature is currently disabled');
   }
 
   // Bulk operations for selected reports
@@ -609,16 +482,10 @@ export class HistoryComponent implements OnInit {
     const count = this.selectedReports.length;
     this.historyService.bulkToggleArchive(this.selectedReports, true).subscribe({
       next: (result) => {
-        // Update local items
-        this.historyItems.forEach(item => {
-          if (this.selectedReports.includes(item.guid)) {
-            item.is_archived = true;
-          }
-        });
         this.selectedReports = [];
-        this.applyFilters();
         this.toastService.showSuccess(`${count} items archived`);
         this.loadStatistics();
+        this.loadHistory(); // Reload to reflect current filter state
       },
       error: (error) => {
         console.error('Error archiving items:', error);
@@ -639,16 +506,10 @@ export class HistoryComponent implements OnInit {
     const count = this.selectedReports.length;
     this.historyService.bulkToggleArchive(this.selectedReports, false).subscribe({
       next: (result) => {
-        // Update local items
-        this.historyItems.forEach(item => {
-          if (this.selectedReports.includes(item.guid)) {
-            item.is_archived = false;
-          }
-        });
         this.selectedReports = [];
-        this.applyFilters();
         this.toastService.showSuccess(`${count} items unarchived`);
         this.loadStatistics();
+        this.loadHistory(); // Reload to reflect current filter state
       },
       error: (error) => {
         console.error('Error unarchiving items:', error);
